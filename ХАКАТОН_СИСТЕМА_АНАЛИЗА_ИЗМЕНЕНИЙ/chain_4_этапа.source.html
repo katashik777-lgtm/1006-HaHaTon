@@ -1,0 +1,42 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:28px 24px 20px;background:#fff;font-family:'Segoe UI',Arial,Helvetica,sans-serif}
+  .row{display:flex;align-items:stretch}
+  .box{width:250px;border-radius:10px;padding:13px 15px 12px;border:1.5px solid}
+  .num{font-size:10.5px;font-weight:700;letter-spacing:.1em;margin-bottom:6px;opacity:.75}
+  .ttl{font-size:14.5px;font-weight:700;line-height:1.25}
+  .sub{font-size:11.5px;line-height:1.35;margin-top:7px;opacity:.85}
+  .ready{background:#F1F1F1;border-color:#CFCFCF;color:#7C7C7C}
+  .yours{background:#D9EBD1;border-color:#4A8A3C;color:#1E3A17;border-width:2.5px;
+         box-shadow:0 2px 0 rgba(74,138,60,.18)}
+  .arr{width:40px;display:flex;align-items:center;justify-content:center;color:#B5B5B5;font-size:22px}
+  .arr.on{color:#4A8A3C}
+  .caps{display:flex;margin-top:14px}
+  .cap{text-align:center;font-size:12px;font-weight:700;padding:7px 0;border-radius:6px}
+  .cap.g{width:540px;background:#F1F1F1;color:#8A8A8A}
+  .cap.sp{width:40px}
+  .cap.y{width:540px;background:#4A8A3C;color:#fff;letter-spacing:.04em}
+</style></head><body>
+<div class="row">
+  <div class="box ready"><div class="num">МОДУЛЬ 1</div>
+    <div class="ttl">Сборка и подготовка пулов ретро-заявок</div>
+    <div class="sub">Отбор исторических заявок и данных для повторного прогона</div></div>
+  <div class="arr">→</div>
+  <div class="box ready"><div class="num">МОДУЛЬ 2</div>
+    <div class="ttl">Исполнение тестов — прогон через СПР</div>
+    <div class="sub">Каждая заявка уходит в СПР дважды: версия с прода и версия с изменением</div></div>
+  <div class="arr on">→</div>
+  <div class="box yours"><div class="num">МОДУЛЬ 3</div>
+    <div class="ttl">Приведение и сравнение данных</div>
+    <div class="sub">Разбор ответов, сопоставление срезов, витрина различий</div></div>
+  <div class="arr on">→</div>
+  <div class="box yours"><div class="num">МОДУЛЬ 4</div>
+    <div class="ttl">Визуализация результатов в браузере</div>
+    <div class="sub">Сводная таблица, автопроверки, путь до заявки и атрибута</div></div>
+</div>
+<div class="caps">
+  <div class="cap g">уже работает · результат выдан вам датасетом</div>
+  <div class="cap sp"></div>
+  <div class="cap y">ВАША ЗАДАЧА</div>
+</div>
+</body></html>
