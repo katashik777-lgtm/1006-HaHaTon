@@ -16,12 +16,12 @@ def backup(destination):
  with sqlite3.connect(DATA/'metadata.sqlite') as src,sqlite3.connect(destination/'metadata.sqlite') as dst:src.backup(dst)
  for name in ['sources','artifacts']:
   if (DATA/name).exists():shutil.copytree(DATA/name,destination/name)
- hashes={str(p.relative_to(destination)):hashlib.sha256(p.read_bytes()).hexdigest() for p in destination.rglob('*') if p.is_file()}
+ hashes={p.relative_to(destination).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in destination.rglob('*') if p.is_file()}
  (destination/'backup.json').write_text(json.dumps(hashes));print('Резервная копия:',destination)
 
 def restore(source):
- source=source.resolve();hashes=json.loads((source/'backup.json').read_text(encoding='utf-8'))
- actual={str(p.relative_to(source)) for p in source.rglob('*') if p.is_file() and p!=source/'backup.json'}
+ source=source.resolve();hashes={name.replace('\\','/'):digest for name,digest in json.loads((source/'backup.json').read_text(encoding='utf-8')).items()}
+ actual={p.relative_to(source).as_posix() for p in source.rglob('*') if p.is_file() and p!=source/'backup.json'}
  if actual!=set(hashes):raise ValueError('Backup file inventory mismatch')
  if 'metadata.sqlite' not in hashes:raise ValueError('Backup has no metadata database')
  if any(p.is_symlink() for p in source.rglob('*')):raise ValueError('Backup must not contain symlinks')

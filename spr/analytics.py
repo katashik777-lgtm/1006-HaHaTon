@@ -5,6 +5,7 @@ import duckdb
 FILTERS={'path':'PATH','key':'KEY','array_key':'ARRAY_KEY','diff_flag':'DIFF_FLAG','change_type':'CHANGE_TYPE','value_before':'VALUE_BEFORE','value_after':'VALUE_AFTER','app_ids':'APP_ID'}
 FACT_DIMS=['PREFIX','CLASS','SUFFIX','ARRAY_KEY','KEY','VALUE_ADJUSTED','DIFF_FLAG','SOURCE','PATH','CHANGE_TYPE']
 def where(filters, allowed):
+ if not isinstance(filters,dict):raise ValueError('Filters must be an object')
  clauses=[];params=[]
  for k,v in filters.items():
   if k=='path_prefix' and 'PATH' in allowed.values():
@@ -24,6 +25,12 @@ class Mart:
   for name in ('comparison','segments','normalized','quality','facts','membership','products'):
    p=self.path/(name+'.parquet')
    if p.exists():self.con.execute('CREATE VIEW '+name+" AS SELECT * FROM read_parquet('"+str(p).replace("'","''")+"')")
+  # Older published artifacts stay immutable; expose comparison values via a view.
+  if (self.path/'membership.parquet').exists():
+   cols={r[0] for r in self.con.execute('DESCRIBE membership').fetchall()}
+   if 'VALUE_BEFORE' not in cols:
+    self.con.execute('ALTER VIEW membership RENAME TO membership_original')
+    self.con.execute('CREATE VIEW membership AS SELECT m.*, c.VALUE_BEFORE, c.VALUE_AFTER FROM membership_original m JOIN comparison c USING(APP_ID,PATH,KEY_JSON)')
  def close(self):self._cache.clear();self.con.close()
  def query(self,sql,params=None):
   result=self.con.execute(sql,params or []);names=[x[0] for x in result.description]
@@ -45,7 +52,7 @@ class Mart:
  def segments(self):return self.query('SELECT * FROM segments ORDER BY APP_ID')
  def total_apps(self):return self.con.execute('SELECT count(*) FROM segments').fetchone()[0]
  def pivot(self,dims,filters,limit=250,offset=0):
-  if not dims or any(d not in FACT_DIMS for d in dims):raise ValueError('Invalid dimensions')
+  if not isinstance(dims,list) or not dims or any(d not in FACT_DIMS for d in dims):raise ValueError('Invalid dimensions')
   w,p=where(filters,{d:d for d in FACT_DIMS});cols=','.join('"'+x+'"' for x in dims)
   return self.query(f'SELECT {cols}, count(DISTINCT APP_ID) CNT FROM membership WHERE {w} GROUP BY {cols} ORDER BY {cols} LIMIT ? OFFSET ?',p+[limit,offset])
  def drill(self,filters,limit=50,offset=0):

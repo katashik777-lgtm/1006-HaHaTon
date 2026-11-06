@@ -87,3 +87,30 @@ def test_source_checksum(tmp_path):
  summary=process([{'name':'a.json','path':str(p),'source':'BEFORE','format':'json','sha256':'incorrect'}],{'app_id':'id'},tmp_path/'out')
  assert summary['valid_pairs']==0
  assert summary['quality']['schema_error']==1
+
+
+def test_drill_comparison_value_filters(artifact):
+ m=Mart(artifact[0])
+ try:
+  result=m.drill({'value_before':'1','value_after':'2','SOURCE':'AFTER','diff_flag':1})
+  assert result['total']==2
+  assert [r['APP_ID'] for r in result['items']]==['a','b']
+ finally:m.close()
+
+
+def test_old_artifact_value_drill(artifact):
+ import polars as pl
+ path=artifact[0]/'membership.parquet'
+ df=pl.read_parquet(path).drop('VALUE_BEFORE','VALUE_AFTER')
+ df.write_parquet(path)
+ m=Mart(artifact[0])
+ try:assert m.drill({'value_before':'1','value_after':'2'})['total']==2
+ finally:m.close()
+
+
+def test_directory_copies(tmp_path):
+ from spr.sources import documents
+ (tmp_path/'a.json').write_bytes(b'{"id":"a"}')
+ (tmp_path/'a 2.json').write_bytes(b'{"id":"a"}')
+ (tmp_path/'a 3.json').write_bytes(b'{"id":"different"}')
+ assert [p.name for p in documents(tmp_path)]==['a 3.json','a.json']

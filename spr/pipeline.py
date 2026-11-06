@@ -38,6 +38,7 @@ def product_rows(app,b,a,p):
 def process(files,profile,target,progress=lambda *x:None,expected=None,checks=None,read_workers=1):
  target=Path(target);target.mkdir(parents=True,exist_ok=True)
  started=time.perf_counter();timings={};quality=[];docs={};rows=[];batches=[];found=set(expected or []);bad=set();stage=time.perf_counter()
+ progress('Чтение и нормализация',0,{'files':0,'total':len(files)})
  for i,(f,raw) in enumerate(input_bytes(files,read_workers)):
   app=Path(f['name']).stem;src=f['source'];entry={'APP_ID':app,'SOURCE':src,'FILE_ID':f.get('id',''),'NAME':f['name'],'STATUS':'parsed','ERROR':''}
   try:
@@ -57,7 +58,8 @@ def process(files,profile,target,progress=lambda *x:None,expected=None,checks=No
   found.add(app);quality.append(entry)
   if i%100==0:
    if rows:batches.append(frame(rows));rows=[]
-   progress('Чтение и нормализация',i/len(files)*55,{'files':i,'total':len(files)})
+   progress('Чтение и нормализация',i/len(files)*55,{'files':i+1,'total':len(files)})
+ progress('Чтение и нормализация',55,{'files':len(files),'total':len(files)})
  timings['read_parse_normalize']=time.perf_counter()-stage
  # Sets make quality accounting linear rather than repeated scans.
  existing={(q['APP_ID'],q['SOURCE']) for q in quality}
@@ -77,7 +79,7 @@ def process(files,profile,target,progress=lambda *x:None,expected=None,checks=No
  s=pl.DataFrame(segs,schema=ss)
  products=pl.DataFrame([r for a in valid for r in product_rows(a,docs[a,'BEFORE'],docs[a,'AFTER'],profile)],schema={'APP_ID':pl.String,'SOURCE':pl.String,'PRODUCT':pl.String,'PARTNER':pl.String,'MODEL':pl.String,'SCORE':pl.Float64,'CUTOFF':pl.Float64,'DECISION':pl.String,'STOP':pl.Boolean})
  timings['segments']=time.perf_counter()-stage
- stage=time.perf_counter();membership=n.filter(pl.col('APP_ID').is_in(valid)).join(c.select(['APP_ID','PATH','KEY_JSON','DIFF_FLAG','CHANGE_TYPE']),on=['APP_ID','PATH','KEY_JSON'],how='inner').rename({'ADJUSTED_VALUE':'VALUE_ADJUSTED'})
+ stage=time.perf_counter();membership=n.filter(pl.col('APP_ID').is_in(valid)).join(c.select(['APP_ID','PATH','KEY_JSON','DIFF_FLAG','CHANGE_TYPE','VALUE_BEFORE','VALUE_AFTER']),on=['APP_ID','PATH','KEY_JSON'],how='inner').rename({'ADJUSTED_VALUE':'VALUE_ADJUSTED'})
  dims=['PREFIX','CLASS','SUFFIX','ARRAY_KEY','KEY','VALUE_ADJUSTED','DIFF_FLAG','SOURCE']
  facts=membership.group_by(dims).agg(pl.col('APP_ID').n_unique().alias('CNT')).sort(dims)
  timings['aggregations']=time.perf_counter()-stage

@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from spr.config import MATERIALS, ROOT
 from spr.pipeline import process
 from spr.analytics import Mart
+from spr.sources import documents
 
 
 def measure(call, repeats=20):
@@ -51,7 +52,7 @@ def main():
         source = MATERIALS / 'data/RUN-20260827-0001'
         manifest = json.loads((source / 'manifest.json').read_text(encoding='utf-8'))
         for stage, spec in manifest['srez'].items():
-            files.extend({'name': p.name, 'source': stage, 'path': str(p), 'format': 'json'} for p in sorted((source / spec['dir']).glob('*.json')))
+            files.extend({'name': p.name, 'source': stage, 'path': str(p), 'format': 'json'} for p in documents(source / spec['dir']))
         profile = json.loads((ROOT / 'profiles/main.json').read_text(encoding='utf-8'))
     target = args.output / 'artifacts'
     summary = process(files, profile, target,read_workers=args.read_workers)

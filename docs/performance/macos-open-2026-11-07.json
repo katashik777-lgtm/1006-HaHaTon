@@ -1,0 +1,43 @@
+{
+  "platform": "macOS-15.8.1-arm64-arm-64bit-Mach-O",
+  "python": "3.14.8",
+  "summary": {
+    "discovered": 2002,
+    "valid_before": 2002,
+    "valid_after": 2002,
+    "valid_pairs": 2002,
+    "excluded": 0,
+    "changed_apps": 502,
+    "decision_changed": 385,
+    "attributes": 289533,
+    "changes": 14412,
+    "normalized_rows": 572221,
+    "files": 4004,
+    "quality": {
+      "missing": 0,
+      "parse_error": 0,
+      "schema_error": 0,
+      "id_conflict": 0,
+      "duplicate": 0
+    }
+  },
+  "timings": {
+    "read_parse_normalize": 4.272468749899417,
+    "union": 0.0013066250830888748,
+    "comparison": 0.21233212505467236,
+    "segments": 0.07295720907859504,
+    "aggregations": 0.13549737515859306,
+    "parquet": 0.32795483409427106,
+    "checks": 0.00040716701187193394,
+    "total": 5.0405432500410825
+  },
+  "pivot": {
+    "median_ms": 16.704749898053706,
+    "p95_ms": 19.529666053131223
+  },
+  "drill": {
+    "median_ms": 5.957082845270634,
+    "p95_ms": 7.615040987730026
+  },
+  "cache": "OS cache not cleared; managed imported original files, not Finder copies; pipeline once; queries 20 times"
+}

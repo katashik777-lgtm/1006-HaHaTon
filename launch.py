@@ -1,4 +1,4 @@
-"""One entry point on Windows, macOS and Linux. Requires Python 3.12."""
+"""One entry point on Windows, macOS and Linux. Requires Python 3.12–3.14."""
 import argparse
 import os
 from pathlib import Path
@@ -11,12 +11,13 @@ ROOT = Path(__file__).resolve().parent
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Контур: одинаковый локальный запуск на всех ОС')
+    parser = argparse.ArgumentParser(description='Скорифай: одинаковый локальный запуск на всех ОС')
     parser.add_argument('command', choices=['install', 'start', 'reset-login', 'test'])
     parser.add_argument('--host', default='127.0.0.1')
+    parser.add_argument('--local-demo', action='store_true', help='При установке создать локальный вход admin/admin')
     args = parser.parse_args()
-    if sys.version_info[:2] != (3, 12):
-        parser.error('Используйте Python 3.12 на всех платформах.')
+    if not (3, 12) <= sys.version_info[:2] <= (3, 14):
+        parser.error('Используйте Python 3.12, 3.13 или 3.14.')
     os.chdir(ROOT)
     python = ROOT / '.venv' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
     env = dict(os.environ, PYTHONUTF8='1', PYTHONIOENCODING='utf-8',
@@ -27,7 +28,7 @@ def main():
         if not python.exists():
             venv.EnvBuilder(with_pip=True).create(ROOT / '.venv')
         run('-m', 'pip', 'install', '-r', 'requirements.txt')
-        run('-m', 'spr.cli', 'init')
+        run('-m', 'spr.cli', 'local-reset' if args.local_demo else 'init')
         print('Установлено. Запуск: python launch.py start')
         return
     if not python.exists():
@@ -40,10 +41,13 @@ def main():
         run('-m', 'pytest', '-q')
     else:
         with socket.socket() as probe:
+            # POSIX leaves closed connections in TIME_WAIT after a normal stop.
+            if os.name != 'nt':probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             try:
                 probe.bind((args.host, 8765))
             except OSError:
                 parser.error('Порт 8765 занят. Возможно, приложение уже запущено: http://localhost:8765')
+        run('-m', 'alembic', 'upgrade', 'head')
         print('http://localhost:8765 — доверенный локальный Python, без песочницы ОС', flush=True)
         try:
             run('-m', 'spr.cli', 'serve', '--host', args.host)

@@ -70,6 +70,11 @@ def test_full_workflow_and_crash_recovery(system):
     result = client.get(f'/api/runs/{runid}').json()
     assert result['status'] == 'completed', result
     assert result['summary']['changed_apps'] == 1
+    assert result['timings']['read_parse_normalize'] > 0
+    assert result['timings']['total'] >= result['timings']['read_parse_normalize']
+    reading = next(entry for entry in result['log'] if entry['stage'] == 'Чтение и нормализация')
+    assert reading['duration_seconds'] > 0
+    assert reading['detail']['files'] >= 1
     pivot = client.post(f'/api/runs/{runid}/pivot', json={'dimensions': ['KEY', 'SOURCE', 'DIFF_FLAG']}).json()
     for row in pivot['items']:
         filters = {k: v for k, v in row.items() if k != 'CNT'}
@@ -100,6 +105,9 @@ def test_full_workflow_and_crash_recovery(system):
             assert other.post(f'/api/runs/{runid}/retry', json={}).status_code == 403
     backup = data.parent / 'backup'
     backups.backup(backup)
+    # A backup made on Windows uses backslashes in older backup.json files.
+    manifest = backup / 'backup.json'
+    manifest.write_text(json.dumps({k.replace('/', '\\'): v for k, v in json.loads(manifest.read_text()).items()}))
     restored = data.parent / 'restored'
     restored.mkdir()
     backups.DATA = restored
@@ -124,3 +132,6 @@ def test_cancel_and_invalid_filters(system):
     worker.work(*worker.claim())
     response = client.post(f'/api/runs/{retry}/pivot', json={'dimensions': ['bad']})
     assert response.status_code == 422
+    for invalid in [{'dimensions': 5}, {'filters': []}]:
+        assert client.post(f'/api/runs/{retry}/pivot', json=invalid).status_code == 422
+    assert client.post(f'/api/runs/{retry}/pivot', json={'limit': -1}).status_code == 200

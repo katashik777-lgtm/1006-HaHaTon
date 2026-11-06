@@ -9,7 +9,9 @@ if sys.platform!='win32' and not job.get('trusted_local',False):
  resource.setrlimit(resource.RLIMIT_CPU,(15,15))
  resource.setrlimit(resource.RLIMIT_FSIZE,(4*1024*1024,4*1024*1024))
  resource.setrlimit(resource.RLIMIT_NOFILE,(128,128))
- resource.setrlimit(resource.RLIMIT_DATA,(1024**3,1024**3))
+ # Darwin RLIMIT_DATA cannot be raised above its platform ceiling. Linux
+ # additionally enforces address-space memory; Darwin uses the OS sandbox.
+ if sys.platform=='linux':resource.setrlimit(resource.RLIMIT_DATA,(1024**3,1024**3))
  if sys.platform=='linux':
   resource.setrlimit(resource.RLIMIT_AS,(2*1024**3,2*1024**3))
   resource.setrlimit(resource.RLIMIT_NPROC,(64,64))

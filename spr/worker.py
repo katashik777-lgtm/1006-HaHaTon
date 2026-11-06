@@ -25,8 +25,11 @@ def work(run_id,owner):
   with Session.begin() as s:
    r=s.get(Run,run_id)
    if r.status=='cancelled' or r.owner!=owner:raise Cancelled()
-   logs=r.log or []
-   if not logs or logs[-1]['stage']!=stage:logs=logs+[{'stage':stage,'time':time.time(),'detail':detail}]
+   logs=[dict(entry) for entry in (r.log or [])];now=time.time()
+   if not logs or logs[-1]['stage']!=stage:
+    if logs:logs[-1]['duration_seconds']=max(0,now-logs[-1]['time'])
+    logs.append({'stage':stage,'time':now,'detail':detail})
+   else:logs[-1]['detail']=detail
    r.stage=stage;r.progress=value;r.updated=time.time();r.log=logs
  try:
   with Session() as s:
@@ -38,7 +41,7 @@ def work(run_id,owner):
   else:
    temp=final.with_name(final.name+'.tmp-'+owner);temp.mkdir(parents=True,exist_ok=True)
    summary=process(files,snap['profile'],temp,progress,checks=snap.get('checks'),expected=snap.get('expected'))
-   (temp/'snapshot.json').write_text(__import__('json').dumps(snap,ensure_ascii=False))
+   (temp/'snapshot.json').write_text(__import__('json').dumps(snap,ensure_ascii=False),encoding='utf-8')
    # Include snapshot before publication and fsync both file contents and directory entry.
    import orjson
    from .pipeline import sha

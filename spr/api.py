@@ -11,7 +11,7 @@ from .db import Session,User,Login,Member,Record,Run,File,Audit,uid,audit,serial
 from .security import verify_password,token_hash,hash_password
 from .analytics import Mart,where,FACT_DIMS
 from .runner import capability,execute
-app=FastAPI(title='Контур · анализ изменений СПР',version='1.0.0')
+app=FastAPI(title='Скорифай · анализ изменений СПР',version='1.0.0')
 
 @app.exception_handler(ValueError)
 async def invalid_value(request,exc):
@@ -167,7 +167,9 @@ def runs(project:str,u=Depends(user)):
 @app.get('/api/runs/{runid}')
 def get_run(runid:str,u=Depends(user)):
  with Session() as s:
-  r=run_access(s,u,runid);out=serialize(r);out.pop('artifact',None);out['snapshot']={k:v for k,v in r.snapshot.items() if k!='files'};return out
+  r=run_access(s,u,runid);out=serialize(r);out.pop('artifact',None);out['snapshot']={k:v for k,v in r.snapshot.items() if k!='files'}
+  out['timings']=json.loads((Path(r.artifact)/'timings.json').read_text(encoding='utf-8')) if r.status=='completed' and r.artifact and (Path(r.artifact)/'timings.json').is_file() else None
+  return out
 @app.post('/api/runs/{runid}/cancel')
 def cancel(runid:str,u=Depends(user)):
  with Session.begin() as s:
@@ -191,7 +193,7 @@ def overview(runid:str,u=Depends(user)):
 @app.post('/api/runs/{runid}/pivot')
 def pivot(runid:str,body:dict,u=Depends(user)):
  try:
-  with mart_for(u,runid) as m:return {'items':m.pivot(body.get('dimensions',FACT_DIMS[:8]),body.get('filters',{}),min(int(body.get('limit',250)),1000),max(0,int(body.get('offset',0)))),'measure':'count(distinct APP_ID)','denominator':m.total_apps()}
+  with mart_for(u,runid) as m:return {'items':m.pivot(body.get('dimensions',FACT_DIMS[:8]),body.get('filters',{}),min(max(1,int(body.get('limit',250))),1000),max(0,int(body.get('offset',0)))),'measure':'count(distinct APP_ID)','denominator':m.total_apps()}
  except ValueError as e:raise HTTPException(422,str(e))
 @app.post('/api/runs/{runid}/drill')
 def drill(runid:str,body:dict,u=Depends(user)):
@@ -271,7 +273,7 @@ def export(runid:str,format:str='html',filters:str='{}',dimensions:str='',u=Depe
   results=json.loads((Path(artifact)/'checks.json').read_text(encoding='utf-8'))
   table=''.join('<tr><th>'+html.escape(k)+'</th><td>'+html.escape(str(v))+'</td></tr>' for k,v in summary.items())
   checks=''.join('<tr><td>'+html.escape(str(x.get('LABEL','')))+'</td><td>'+html.escape(str(x.get('RESULT','')))+'</td><td>'+html.escape(str(x.get('CNT','')))+'</td><td>'+html.escape(str(x.get('TOTAL','')))+'</td></tr>' for x in results)
-  doc='<!doctype html><meta charset="utf-8"><title>Отчёт СПР</title><style>body{font:16px system-ui;max-width:1100px;margin:50px auto;color:#18312e}table{border-collapse:collapse;width:100%}td,th{padding:10px;border:1px solid #ddd;text-align:left}</style><h1>Контур · отчёт сравнения</h1><p>Прогон '+html.escape(runid)+'</p><p>Сравнительная база — только валидные пары. Исключения не считаются исчезновением атрибутов. Различие не доказывает причинность.</p><a href="'+html.escape(BASE_URL+'/?run='+runid,quote=True)+'">Открыть интерактивный отчёт</a><h2>Выборка и показатели</h2><table>'+table+'</table><h2>Проверки</h2><table><tr><th>Проверка</th><th>Итог</th><th>Число</th><th>База</th></tr>'+checks+'</table><h2>Дата и параметры</h2><pre>'+html.escape(json.dumps({'created':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'profile':json.loads((Path(artifact)/'profile.json').read_text(encoding='utf-8'))},ensure_ascii=False,indent=2))+'</pre>'
+  doc='<!doctype html><meta charset="utf-8"><title>Отчёт СПР</title><style>body{font:16px system-ui;max-width:1100px;margin:50px auto;color:#18312e}table{border-collapse:collapse;width:100%}td,th{padding:10px;border:1px solid #ddd;text-align:left}</style><h1>Скорифай · отчёт сравнения</h1><p>Прогон '+html.escape(runid)+'</p><p>Сравнительная база — только валидные пары. Исключения не считаются исчезновением атрибутов. Различие не доказывает причинность.</p><a href="'+html.escape(BASE_URL+'/?run='+runid,quote=True)+'">Открыть интерактивный отчёт</a><h2>Выборка и показатели</h2><table>'+table+'</table><h2>Проверки</h2><table><tr><th>Проверка</th><th>Итог</th><th>Число</th><th>База</th></tr>'+checks+'</table><h2>Дата и параметры</h2><pre>'+html.escape(json.dumps({'created':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'profile':json.loads((Path(artifact)/'profile.json').read_text(encoding='utf-8'))},ensure_ascii=False,indent=2))+'</pre>'
   return HTMLResponse(doc,headers={'Content-Disposition':f'attachment; filename="report-{runid}.html"'})
  with mart_for(u,runid) as m:rows=m.pivot(selected_dims,selected_filters,limit=100001)
  if len(rows)>100000:raise HTTPException(413,'Более 100000 групп: сузьте фильтры экспорта')
