@@ -10,8 +10,8 @@ def diff(b,a,p=None):
  p=p or {};return compare(frame(normalize(b,'a','BEFORE',p)+normalize(a,'a','AFTER',p)),['a'])
 @pytest.mark.parametrize('profile,folder,before,after',[('example','example','01_response_BEFORE.json','02_response_AFTER.json'),('examples','examples','01_response_BEFORE_MASTER_app1001.json','02_response_AFTER_BETA_app1001.json')])
 def test_teaching(profile,folder,before,after):
- p=json.loads((ROOT/'profiles'/f'{profile}.json').read_text());base=MATERIALS/folder
- b=json.loads((base/before).read_text());a=json.loads((base/after).read_text());nb=normalize(b,'1001','BEFORE',p);na=normalize(a,'1001','AFTER',p)
+ p=json.loads((ROOT/'profiles'/f'{profile}.json').read_text(encoding='utf-8'));base=MATERIALS/folder
+ b=json.loads((base/before).read_text(encoding='utf-8'));a=json.loads((base/after).read_text(encoding='utf-8'));nb=normalize(b,'1001','BEFORE',p);na=normalize(a,'1001','AFTER',p)
  assert (len(nb),len(na),len(nb+na))==(12,14,26)
  c=compare(frame(nb+na),['1001']);assert c.height==14;assert c['DIFF_FLAG'].sum()==6
  assert c.filter(__import__('polars').col('CHANGE_TYPE')=='VALUE_CHANGED').height==4
@@ -46,11 +46,11 @@ def test_json_xml_csv():
 def test_xml_external_disabled():
  with pytest.raises(Exception):parse(b'<!DOCTYPE x [<!ENTITY e SYSTEM "file:///etc/passwd">]><x>&e;</x>','xml',{})
 def test_demo_equivalent():
- b=MATERIALS/'examples';rows=list(csv.DictReader((b/'07_pivot_facts_demo.csv').open(encoding='utf-8-sig'),delimiter=';'));obj=json.loads((b/'08_pivot_facts_demo.json').read_text())
+ b=MATERIALS/'examples';rows=list(csv.DictReader((b/'07_pivot_facts_demo.csv').open(encoding='utf-8-sig'),delimiter=';'));obj=json.loads((b/'08_pivot_facts_demo.json').read_text(encoding='utf-8'))
  assert len(rows)==len(obj)==59
  for x,y in zip(rows,obj):assert {k:str(v) for k,v in x.items()}=={k:str(v) for k,v in y.items()}
  for source in ['BEFORE','AFTER']:assert sum(int(r['CNT']) for r in rows if r['KEY']=='decision' and r['SOURCE'].startswith(source))==465
- assert 'пяти' in (b/'README.md').read_text()
+ assert 'пяти' in (b/'README.md').read_text(encoding='utf-8')
 @pytest.fixture
 def artifact(tmp_path):
  files=[]
@@ -74,3 +74,16 @@ def test_mart_filters_and_distinct(artifact):
 def test_manifest(artifact):
  out,_=artifact;verify_manifest(out);(out/'summary.json').write_text('{}')
  with pytest.raises(ValueError):verify_manifest(out)
+
+def test_prefix_union_and_cache_lifetime(artifact):
+ m=Mart(artifact[0])
+ assert m.app_ids(path_prefix=['x','id'])==['a','b']
+ assert m.app_ids(path_prefix=[])==[]
+ m.rows(path='x');assert m._cache
+ m.close();assert not m._cache
+
+def test_source_checksum(tmp_path):
+ p=tmp_path/'a.json';p.write_text('{"id":"a"}')
+ summary=process([{'name':'a.json','path':str(p),'source':'BEFORE','format':'json','sha256':'incorrect'}],{'app_id':'id'},tmp_path/'out')
+ assert summary['valid_pairs']==0
+ assert summary['quality']['schema_error']==1

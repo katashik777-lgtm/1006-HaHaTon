@@ -1,16 +1,19 @@
-"""Runs ONLY inside OS isolation. No metadata credentials are made available."""
-import sys, json, io, contextlib, traceback, resource
+"""Procedure host for isolated and explicitly trusted local execution."""
+import sys, json, io, contextlib, traceback
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from analytics import Mart
-resource.setrlimit(resource.RLIMIT_CPU,(15,15))
-resource.setrlimit(resource.RLIMIT_FSIZE,(4*1024*1024,4*1024*1024))
-resource.setrlimit(resource.RLIMIT_NOFILE,(128,128))
-resource.setrlimit(resource.RLIMIT_DATA,(1024**3,1024**3))
-if sys.platform=='linux':
- resource.setrlimit(resource.RLIMIT_AS,(2*1024**3,2*1024**3))
- resource.setrlimit(resource.RLIMIT_NPROC,(64,64))
-job=json.loads(Path(sys.argv[1]).read_text());buf=io.StringIO();err=io.StringIO();mart=None
+job=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+if sys.platform!='win32' and not job.get('trusted_local',False):
+ import resource
+ resource.setrlimit(resource.RLIMIT_CPU,(15,15))
+ resource.setrlimit(resource.RLIMIT_FSIZE,(4*1024*1024,4*1024*1024))
+ resource.setrlimit(resource.RLIMIT_NOFILE,(128,128))
+ resource.setrlimit(resource.RLIMIT_DATA,(1024**3,1024**3))
+ if sys.platform=='linux':
+  resource.setrlimit(resource.RLIMIT_AS,(2*1024**3,2*1024**3))
+  resource.setrlimit(resource.RLIMIT_NPROC,(64,64))
+job=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'));buf=io.StringIO();err=io.StringIO();mart=None
 try:
  scope={};mart=Mart(job['artifact'])
  with contextlib.redirect_stdout(buf),contextlib.redirect_stderr(err):

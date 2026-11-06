@@ -1,0 +1,9 @@
+{
+  "files": 4004,
+  "rows": 572221,
+  "sequential_seconds": 4.10898359993007,
+  "spawn_4_seconds": 1.9196882999967784,
+  "batch_size": 32,
+  "equivalent": true,
+  "scope": "Read, parse, normalize and hash; excludes dataframe construction, IPC of rows and Parquet publication. OS cache not purged."
+}

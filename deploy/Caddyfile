@@ -1,0 +1,8 @@
+# Replace the domain with one whose DNS points to this server.
+spr.example.com {
+    encode zstd gzip
+    request_body {
+        max_size 100MB
+    }
+    reverse_proxy 127.0.0.1:8765
+}

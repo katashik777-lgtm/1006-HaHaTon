@@ -1,10 +1,23 @@
 import hashlib, time, os, shutil, json
 from pathlib import Path
 import orjson, polars as pl
+from concurrent.futures import ThreadPoolExecutor
 from .normalize import parse,normalize,get,frame,compare
 from .analytics import Mart
 
 def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+def input_bytes(files,workers=4):
+ """Bounded I/O prefetch. Parsing remains deterministic in input order."""
+ def read(f):
+  try:return f,Path(f['path']).read_bytes()
+  except OSError as e:return f,e
+ if workers<=1:
+  yield from map(read,files)
+ else:
+  with ThreadPoolExecutor(max_workers=min(workers,8)) as pool:
+   for start in range(0,len(files),64):
+    yield from pool.map(read,files[start:start+64])
 def segment(app,b,a,p):
  def trials(d):return sorted(get(d,p.get('trials_path','decisionResult.product_trials'),[]) or [],key=lambda x:str(x.get('product_id')))
  tb,ta=trials(b),trials(a)
@@ -22,13 +35,14 @@ def product_rows(app,b,a,p):
    rows.append({'APP_ID':app,'SOURCE':src,'PRODUCT':str(t.get('product_id')),'PARTNER':str(t.get('partner_type','')),'MODEL':get(t,'scoring.pd.modelName'),'SCORE':get(t,'scoring.pd.value'),'CUTOFF':get(t,'cutOff.value'),'DECISION':t.get('decision'),'STOP':any(x.get('hit') is True for x in t.get('rules',[]))})
  return rows
 
-def process(files,profile,target,progress=lambda *x:None,expected=None,checks=None):
+def process(files,profile,target,progress=lambda *x:None,expected=None,checks=None,read_workers=1):
  target=Path(target);target.mkdir(parents=True,exist_ok=True)
  started=time.perf_counter();timings={};quality=[];docs={};rows=[];batches=[];found=set(expected or []);bad=set();stage=time.perf_counter()
- for i,f in enumerate(files):
+ for i,(f,raw) in enumerate(input_bytes(files,read_workers)):
   app=Path(f['name']).stem;src=f['source'];entry={'APP_ID':app,'SOURCE':src,'FILE_ID':f.get('id',''),'NAME':f['name'],'STATUS':'parsed','ERROR':''}
   try:
-   raw=Path(f['path']).read_bytes()
+   if isinstance(raw,Exception):raise raw
+   if f.get('sha256') and hashlib.sha256(raw).hexdigest()!=f['sha256']:raise ValueError('Source checksum mismatch')
    doc=parse(raw,f.get('format','json'),profile)
    internal=get(doc,profile.get('app_id','')) if profile.get('app_id') else app
    if internal is None:raise ValueError('APP_ID missing')

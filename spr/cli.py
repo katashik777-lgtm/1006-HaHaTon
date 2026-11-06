@@ -6,7 +6,7 @@ from .db import Session,User,Member,Record,File,Run,uid
 from .security import hash_password
 
 def init(password=None):
- subprocess.run([str(ROOT/'.venv/bin/alembic'),'upgrade','head'],cwd=ROOT,check=True)
+ subprocess.run([sys.executable,'-m','alembic','upgrade','head'],cwd=ROOT,check=True)
  with Session.begin() as s:
   u=s.execute(select(User).where(User.name=='admin')).scalar()
   if not u:
@@ -15,14 +15,14 @@ def init(password=None):
   if not project:
    ident=uid();project=Record(id=ident,project=ident,kind='project',name='Стратегия · открытый датасет',author=u.id,body={});s.add(project);s.add(Member(user_id=u.id,project=ident,role='admin'))
   for p in (ROOT/'profiles').glob('*.json'):
-   if not s.execute(select(Record).where(Record.project==project.id,Record.kind=='profile',Record.name==p.stem)).scalar():s.add(Record(project=project.id,kind='profile',name=p.stem,author=u.id,body=json.loads(p.read_text())))
+   if not s.execute(select(Record).where(Record.project==project.id,Record.kind=='profile',Record.name==p.stem)).scalar():s.add(Record(project=project.id,kind='profile',name=p.stem,author=u.id,body=json.loads(p.read_text(encoding='utf-8'))))
   if MATERIALS:
    for p in (MATERIALS/'checks').glob('check_*.py'):
-    if not s.execute(select(Record).where(Record.project==project.id,Record.kind=='procedure',Record.name==p.stem)).scalar():s.add(Record(project=project.id,kind='procedure',name=p.stem,author=u.id,body={'code':p.read_text(),'params':{},'type':'check'}))
+    if not s.execute(select(Record).where(Record.project==project.id,Record.kind=='procedure',Record.name==p.stem)).scalar():s.add(Record(project=project.id,kind='procedure',name=p.stem,author=u.id,body={'code':p.read_text(encoding='utf-8'),'params':{},'type':'check'}))
  return project.id
 
 def import_dir(project,path,name='Открытый набор · 2002 заявки'):
- path=Path(path);manifest=json.loads((path/'manifest.json').read_text());dataset=uid();files=[]
+ path=Path(path);manifest=json.loads((path/'manifest.json').read_text(encoding='utf-8'));dataset=uid();files=[]
  for source,spec in manifest['srez'].items():
   for p in sorted((path/spec['dir']).glob('*')):
    if p.suffix.lower() not in ('.json','.xml','.csv'):continue
@@ -33,7 +33,19 @@ def import_dir(project,path,name='Открытый набор · 2002 заявк
  return dataset
 
 def main():
- parser=argparse.ArgumentParser();parser.add_argument('command',choices=['init','demo','serve','password','worker','backup','restore']);parser.add_argument('argument',nargs='?');parser.add_argument('--password-stdin',action='store_true');args=parser.parse_args()
+ parser=argparse.ArgumentParser();parser.add_argument('command',choices=['init','local-reset','demo','serve','password','worker','backup','restore']);parser.add_argument('argument',nargs='?');parser.add_argument('--password-stdin',action='store_true');parser.add_argument('--host',default='127.0.0.1');args=parser.parse_args()
+ if args.command=='local-reset':
+  import secrets
+  from .db import Login,Audit
+  from sqlalchemy import delete
+  init(secrets.token_urlsafe(24))
+  with Session.begin() as s:
+   u=s.execute(select(User).where(User.name=='admin')).scalar_one()
+   u.password=hash_password('admin',minimum_length=5)
+   s.execute(delete(Login).where(Login.user_id==u.id))
+   s.execute(delete(Audit).where(Audit.action=='login_failed',Audit.object_id.in_(['127.0.0.1','::1'])))
+  print('Local login reset: admin / admin')
+  return
  if args.command=='init':print('Проект:',init(sys.stdin.readline().rstrip('\n') if args.password_stdin else None))
  elif args.command=='demo':
   with Session() as s:project=s.execute(select(Record.id).where(Record.kind=='project')).scalar();ds=s.execute(select(Record.id).where(Record.kind=='dataset')).scalar()
@@ -48,7 +60,7 @@ def main():
    s.execute(delete(Login).where(Login.user_id==u.id))
   print('Пароль обновлён; предыдущие сеансы завершены.')
  elif args.command=='serve':
-  children=[subprocess.Popen([sys.executable,'-m','spr.worker']),subprocess.Popen([sys.executable,'-m','uvicorn','spr.api:app','--host','127.0.0.1','--port','8765'])]
+  children=[subprocess.Popen([sys.executable,'-m','spr.worker']),subprocess.Popen([sys.executable,'-m','uvicorn','spr.api:app','--host',args.host,'--port','8765'])]
   try:
    while all(c.poll() is None for c in children):time.sleep(1)
   except KeyboardInterrupt:pass

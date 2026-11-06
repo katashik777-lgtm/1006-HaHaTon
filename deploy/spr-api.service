@@ -1,0 +1,22 @@
+[Unit]
+Description=SPR analytics API
+After=network.target
+
+[Service]
+User=spr
+Group=spr
+WorkingDirectory=/opt/spr
+EnvironmentFile=/etc/spr.env
+Environment=PYTHONUTF8=1
+ExecStart=/opt/spr/.venv/bin/python -m uvicorn spr.api:app --host 127.0.0.1 --port 8765 --proxy-headers --forwarded-allow-ips=127.0.0.1
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/spr
+
+[Install]
+WantedBy=multi-user.target

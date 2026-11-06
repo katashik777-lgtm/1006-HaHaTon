@@ -3,6 +3,7 @@ from pathlib import Path
 from contextlib import contextmanager
 from fastapi import FastAPI, HTTPException, Request, Response, UploadFile, File as Upload, Form, Depends
 from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select, delete
 from .config import ROOT,DATA,BASE_URL,MATERIALS
@@ -11,6 +12,10 @@ from .security import verify_password,token_hash,hash_password
 from .analytics import Mart,where,FACT_DIMS
 from .runner import capability,execute
 app=FastAPI(title='Контур · анализ изменений СПР',version='1.0.0')
+
+@app.exception_handler(ValueError)
+async def invalid_value(request,exc):
+ return JSONResponse(status_code=422,content={'detail':str(exc)})
 
 @app.middleware('http')
 async def request_context(request,call_next):
@@ -69,7 +74,7 @@ def login(body:dict,response:Response,request:Request):
    token=secrets.token_urlsafe(40);s.add(Login(token=token_hash(token),user_id=u.id,expires=time.time()+12*3600));audit(s,u.id,'','login',request_id=request.state.request_id)
  if not valid:raise HTTPException(401,'Неверный логин или пароль')
  response.set_cookie('spr_session',token,httponly=True,samesite='strict',secure=BASE_URL.startswith('https'),max_age=43200)
- return {'name':u.name,'admin':u.admin}
+ return {'id':u.id,'name':u.name,'admin':u.admin,'isolation':capability()}
 @app.post('/api/logout')
 def logout(request:Request,response:Response,u=Depends(user)):
  with Session.begin() as s:s.execute(delete(Login).where(Login.token==token_hash(request.cookies.get('spr_session',''))))
@@ -182,7 +187,7 @@ def overview(runid:str,u=Depends(user)):
   top=m.query('SELECT PATH,count(DISTINCT APP_ID) CNT FROM comparison WHERE DIFF_FLAG=1 GROUP BY PATH ORDER BY CNT DESC,PATH LIMIT 15')
   external=m.query("SELECT count(DISTINCT APP_ID) CNT FROM comparison WHERE DIFF_FLAG=1 AND (starts_with(PATH,'ext_data') OR starts_with(PATH,'characteristics'))")[0]['CNT']
   unchanged=m.query('SELECT count(DISTINCT c.APP_ID) CNT FROM comparison c JOIN segments s USING(APP_ID) WHERE c.DIFF_FLAG=1 AND s.DECISION_CHANGED=0')[0]['CNT']
-  return {'transitions':transitions,'top':top,'external':external,'changed_without_decision':unchanged,'denominator':m.total_apps(),'recommendations':[{'observation':f'Внешние значения изменились у {external} заявок','confidence':'Наблюдение','hypothesis':'Изменение входных данных могло сопровождать изменение решения. Причинность не доказана.','next':'Сравните источник, предиктор соответствующей модели и решение.','filters':{'path_prefix':'ext_data','diff_flag':1}},{'observation':f'{unchanged} заявок имеют различия без смены решения','confidence':'Подтверждено сравнением','next':'Проверьте изменения офферов, условий и структуры.'}]}
+  return {'transitions':transitions,'top':top,'external':external,'changed_without_decision':unchanged,'denominator':m.total_apps(),'recommendations':[{'observation':f'Внешние значения изменились у {external} заявок','confidence':'Наблюдение','hypothesis':'Изменение входных данных могло сопровождать изменение решения. Причинность не доказана.','next':'Сравните источник, предиктор соответствующей модели и решение.','filters':{'path_prefix':['ext_data','characteristics'],'diff_flag':1}},{'observation':f'{unchanged} заявок имеют различия без смены решения','confidence':'Подтверждено сравнением','next':'Проверьте изменения офферов, условий и структуры.'}]}
 @app.post('/api/runs/{runid}/pivot')
 def pivot(runid:str,body:dict,u=Depends(user)):
  try:
@@ -211,7 +216,7 @@ def application(runid:str,appid:str,u=Depends(user)):
   return {'comparison':m.query('SELECT * FROM comparison WHERE APP_ID=? ORDER BY PATH,KEY_JSON',[appid]),'quality':m.query('SELECT * FROM quality WHERE APP_ID=? ORDER BY SOURCE',[appid]),'segments':m.query('SELECT * FROM segments WHERE APP_ID=?',[appid]),'products':m.query('SELECT * FROM products WHERE APP_ID=? ORDER BY PRODUCT,SOURCE',[appid])}
 @app.get('/api/runs/{runid}/checks')
 def checks(runid:str,u=Depends(user)):
- with Session() as s:r=run_access(s,u,runid,True);return json.loads((Path(r.artifact)/'checks.json').read_text())
+ with Session() as s:r=run_access(s,u,runid,True);return json.loads((Path(r.artifact)/'checks.json').read_text(encoding='utf-8'))
 @app.post('/api/runs/{runid}/test-procedure')
 def test_procedure(runid:str,body:dict,u=Depends(user)):
  with Session.begin() as s:
@@ -257,19 +262,22 @@ def add_member(project:str,body:dict,u=Depends(user)):
   audit(s,u.id,project,'access_change',usr.id,{'role':body['role']})
  return {'ok':True}
 @app.get('/api/runs/{runid}/export')
-def export(runid:str,format:str='html',u=Depends(user)):
+def export(runid:str,format:str='html',filters:str='{}',dimensions:str='',u=Depends(user)):
+ selected_filters=json.loads(filters);selected_dims=json.loads(dimensions) if dimensions else FACT_DIMS[:8]
+ if not isinstance(selected_filters,dict) or not isinstance(selected_dims,list):raise ValueError('Invalid export filters or dimensions')
  with Session.begin() as s:
   r=run_access(s,u,runid,True);summary=r.summary;artifact=r.artifact;audit(s,u.id,r.project,'export',runid,{'format':format})
  if format=='html':
-  results=json.loads((Path(artifact)/'checks.json').read_text())
+  results=json.loads((Path(artifact)/'checks.json').read_text(encoding='utf-8'))
   table=''.join('<tr><th>'+html.escape(k)+'</th><td>'+html.escape(str(v))+'</td></tr>' for k,v in summary.items())
   checks=''.join('<tr><td>'+html.escape(str(x.get('LABEL','')))+'</td><td>'+html.escape(str(x.get('RESULT','')))+'</td><td>'+html.escape(str(x.get('CNT','')))+'</td><td>'+html.escape(str(x.get('TOTAL','')))+'</td></tr>' for x in results)
-  doc='<!doctype html><meta charset="utf-8"><title>Отчёт СПР</title><style>body{font:16px system-ui;max-width:1100px;margin:50px auto;color:#18312e}table{border-collapse:collapse;width:100%}td,th{padding:10px;border:1px solid #ddd;text-align:left}</style><h1>Контур · отчёт сравнения</h1><p>Прогон '+html.escape(runid)+'</p><p>Сравнительная база — только валидные пары. Исключения не считаются исчезновением атрибутов. Различие не доказывает причинность.</p><a href="'+html.escape(BASE_URL+'/?run='+runid,quote=True)+'">Открыть интерактивный отчёт</a><h2>Выборка и показатели</h2><table>'+table+'</table><h2>Проверки</h2><table><tr><th>Проверка</th><th>Итог</th><th>Число</th><th>База</th></tr>'+checks+'</table><h2>Дата и параметры</h2><pre>'+html.escape(json.dumps({'created':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'profile':json.loads((Path(artifact)/'profile.json').read_text())},ensure_ascii=False,indent=2))+'</pre>'
+  doc='<!doctype html><meta charset="utf-8"><title>Отчёт СПР</title><style>body{font:16px system-ui;max-width:1100px;margin:50px auto;color:#18312e}table{border-collapse:collapse;width:100%}td,th{padding:10px;border:1px solid #ddd;text-align:left}</style><h1>Контур · отчёт сравнения</h1><p>Прогон '+html.escape(runid)+'</p><p>Сравнительная база — только валидные пары. Исключения не считаются исчезновением атрибутов. Различие не доказывает причинность.</p><a href="'+html.escape(BASE_URL+'/?run='+runid,quote=True)+'">Открыть интерактивный отчёт</a><h2>Выборка и показатели</h2><table>'+table+'</table><h2>Проверки</h2><table><tr><th>Проверка</th><th>Итог</th><th>Число</th><th>База</th></tr>'+checks+'</table><h2>Дата и параметры</h2><pre>'+html.escape(json.dumps({'created':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'profile':json.loads((Path(artifact)/'profile.json').read_text(encoding='utf-8'))},ensure_ascii=False,indent=2))+'</pre>'
   return HTMLResponse(doc,headers={'Content-Disposition':f'attachment; filename="report-{runid}.html"'})
- with mart_for(u,runid) as m:rows=m.query('SELECT * FROM facts ORDER BY PREFIX,CLASS,SUFFIX,ARRAY_KEY,KEY,VALUE_ADJUSTED,DIFF_FLAG,SOURCE')
- if format=='json':return Response(json.dumps({'schema':'pivot facts v1; CNT=distinct APP_ID per group; totals overlap','items':rows},ensure_ascii=False),media_type='application/json',headers={'Content-Disposition':'attachment; filename="facts.json"'})
+ with mart_for(u,runid) as m:rows=m.pivot(selected_dims,selected_filters,limit=100001)
+ if len(rows)>100000:raise HTTPException(413,'Более 100000 групп: сузьте фильтры экспорта')
+ if format=='json':return Response(json.dumps({'schema':'pivot facts v1; CNT=distinct APP_ID per group; totals overlap','run':runid,'dimensions':selected_dims,'filters':selected_filters,'items':rows},ensure_ascii=False),media_type='application/json',headers={'Content-Disposition':'attachment; filename="facts.json"'})
  if format=='csv':
-  stream=io.StringIO();w=csv.DictWriter(stream,fieldnames=list(rows[0]) if rows else FACT_DIMS[:8]+['CNT'],delimiter=';');w.writeheader()
+  stream=io.StringIO();w=csv.DictWriter(stream,fieldnames=list(rows[0]) if rows else selected_dims+['CNT'],delimiter=';');w.writeheader()
   for r in rows:w.writerow({k:("'"+v if isinstance(v,str) and v.lstrip().startswith(('=','+','-','@','\t','\r')) else v) for k,v in r.items()})
   return Response(('\ufeff'+stream.getvalue()).encode(),media_type='text/csv',headers={'Content-Disposition':'attachment; filename="facts.csv"'})
  raise HTTPException(422)

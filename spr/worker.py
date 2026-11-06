@@ -45,10 +45,15 @@ def work(run_id,owner):
    m=orjson.loads((temp/'manifest.json').read_bytes());m['files']['snapshot.json']={'sha256':sha(temp/'snapshot.json'),'size':(temp/'snapshot.json').stat().st_size};(temp/'manifest.json').write_bytes(orjson.dumps(m))
    verify_manifest(temp)
    for f in temp.iterdir():
-    with f.open('rb') as stream:os.fsync(stream.fileno())
+    with f.open('r+b') as stream:os.fsync(stream.fileno())
    progress('Публикация',98,{})
    os.rename(temp,final)
-   fd=os.open(final.parent,os.O_RDONLY);os.fsync(fd);os.close(fd)
+   # Windows cannot open a directory with os.open. The rename is still atomic;
+   # POSIX additionally makes the directory entry durable across power loss.
+   if os.name!='nt':
+    fd=os.open(final.parent,os.O_RDONLY)
+    try:os.fsync(fd)
+    finally:os.close(fd)
   with Session.begin() as s:
    r=s.get(Run,run_id)
    if r.owner!=owner or r.status=='cancelled':return
@@ -57,7 +62,7 @@ def work(run_id,owner):
  except Exception as e:
   with Session.begin() as s:
    r=s.get(Run,run_id)
-   if r.owner==owner:r.status='failed';r.stage='Ошибка';r.error=str(e);r.log=(r.log or [])+[{'stage':'Ошибка','traceback':traceback.format_exc()[-10000:],'time':time.time()}]
+   if r.owner==owner and r.status=='running':r.status='failed';r.stage='Ошибка';r.error=str(e);r.log=(r.log or [])+[{'stage':'Ошибка','traceback':traceback.format_exc()[-10000:],'time':time.time()}]
  finally:
   stop.set();thread.join(timeout=1)
   with Session() as s:

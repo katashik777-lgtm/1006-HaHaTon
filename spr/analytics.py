@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-from functools import lru_cache
 import duckdb
 
 FILTERS={'path':'PATH','key':'KEY','array_key':'ARRAY_KEY','diff_flag':'DIFF_FLAG','change_type':'CHANGE_TYPE','value_before':'VALUE_BEFORE','value_after':'VALUE_AFTER','app_ids':'APP_ID'}
@@ -8,7 +7,9 @@ FACT_DIMS=['PREFIX','CLASS','SUFFIX','ARRAY_KEY','KEY','VALUE_ADJUSTED','DIFF_FL
 def where(filters, allowed):
  clauses=[];params=[]
  for k,v in filters.items():
-  if k=='path_prefix':clauses.append('starts_with("PATH", ?)');params.append(v);continue
+  if k=='path_prefix' and 'PATH' in allowed.values():
+   prefixes=v if isinstance(v,list) else [v]
+   clauses.append('('+' OR '.join('starts_with("PATH", ?)' for _ in prefixes)+')' if prefixes else 'false');params.extend(prefixes);continue
   c=allowed.get(k,k)
   if c not in allowed.values():raise ValueError('Unsupported filter: '+k)
   if isinstance(v,list):
@@ -19,18 +20,23 @@ def where(filters, allowed):
  return (' AND '.join(clauses) or 'true'),params
 class Mart:
  def __init__(self,path):
-  self.path=Path(path);self.con=duckdb.connect(':memory:',config={'threads':2,'memory_limit':'512MB','enable_external_access':True})
+  self.path=Path(path);self._cache={};self.con=duckdb.connect(':memory:',config={'threads':2,'memory_limit':'512MB','enable_external_access':True})
   for name in ('comparison','segments','normalized','quality','facts','membership','products'):
    p=self.path/(name+'.parquet')
    if p.exists():self.con.execute('CREATE VIEW '+name+" AS SELECT * FROM read_parquet('"+str(p).replace("'","''")+"')")
- def close(self):self.con.close()
+ def close(self):self._cache.clear();self.con.close()
  def query(self,sql,params=None):
   result=self.con.execute(sql,params or []);names=[x[0] for x in result.description]
   return [dict(zip(names,r)) for r in result.fetchall()]
- @lru_cache(maxsize=64)
  def cached_rows(self,key):
+  if key in self._cache:return self._cache[key]
   filters=json.loads(key);w,p=where(filters,FILTERS)
-  return self.query('SELECT * FROM comparison WHERE '+w,p)
+  rows=self.query('SELECT * FROM comparison WHERE '+w,p)
+  # Cache belongs to this reader, never retains closed readers or entire marts.
+  if len(rows)<=1000:
+   if len(self._cache)>=8:self._cache.pop(next(iter(self._cache)))
+   self._cache[key]=rows
+  return rows
  def rows(self,**filters):return self.cached_rows(json.dumps(filters,sort_keys=True))
  def count(self,**filters):
   w,p=where(filters,FILTERS);return self.con.execute('SELECT count(*) FROM comparison WHERE '+w,p).fetchone()[0]

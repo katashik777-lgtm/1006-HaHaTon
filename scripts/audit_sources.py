@@ -9,7 +9,7 @@ for folder in ['example','examples','samples']:
   if not f.is_file() or f.name.startswith('.'):continue
   item={'path':str(f.relative_to(ROOT)),'size':f.stat().st_size,'sha256':hashlib.sha256(f.read_bytes()).hexdigest()}
   if f.suffix=='.json':
-   obj=json.loads(f.read_text());item['structure']=list(obj) if isinstance(obj,dict) else {'rows':len(obj)}
+   obj=json.loads(f.read_text(encoding='utf-8'));item['structure']=list(obj) if isinstance(obj,dict) else {'rows':len(obj)}
   elif f.suffix=='.csv':
    rows=list(csv.DictReader(f.open(encoding='utf-8-sig'),delimiter=';'));item['rows']=len(rows);item['columns']=list(rows[0]) if rows else []
   elif f.suffix=='.xlsx':
@@ -23,7 +23,7 @@ root=MATERIALS/'data/RUN-20260827-0001';stats={}
 for src in ['BEFORE_MASTER','AFTER_BETA']:
  paths=list((root/'RESULTS'/src).glob('*.json'));bad=[];keys=collections.Counter()
  for f in paths:
-  try:obj=json.loads(f.read_text());keys.update(obj.keys())
+  try:obj=json.loads(f.read_text(encoding='utf-8'));keys.update(obj.keys())
   except Exception as e:bad.append({'file':f.name,'error':str(e)})
  stats[src]={'files':len(paths),'bytes':sum(p.stat().st_size for p in paths),'top_keys':dict(keys),'parse_errors':bad}
 (ROOT/'docs/open-dataset-inventory.json').write_text(json.dumps(stats,ensure_ascii=False,indent=2));print(stats)

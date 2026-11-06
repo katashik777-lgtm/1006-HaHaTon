@@ -1,0 +1,55 @@
+{
+  "dataset": "synthetic-20000",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.10",
+  "cpu": "AMD64 Family 25 Model 117 Stepping 2, AuthenticAMD",
+  "logical_cpus": 16,
+  "polars_threads": 4,
+  "cache": "OS cache not purged; first pipeline run, subsequent warm queries",
+  "summary": {
+    "discovered": 20000,
+    "valid_before": 20000,
+    "valid_after": 20000,
+    "valid_pairs": 20000,
+    "excluded": 0,
+    "changed_apps": 11688,
+    "decision_changed": 2858,
+    "attributes": 141819,
+    "changes": 15344,
+    "normalized_rows": 281819,
+    "files": 40000,
+    "quality": {
+      "missing": 0,
+      "parse_error": 0,
+      "schema_error": 0,
+      "id_conflict": 0,
+      "duplicate": 0
+    }
+  },
+  "pipeline_seconds": {
+    "read_parse_normalize": 373.501953399973,
+    "union": 0.004200099967420101,
+    "comparison": 0.13294110004790127,
+    "segments": 0.2309441000688821,
+    "aggregations": 0.1123493000632152,
+    "parquet": 0.19391560007352382,
+    "checks": 0.0006882000016048551,
+    "total": 374.28496309998445
+  },
+  "pivot_new_connection": {
+    "median_seconds": 0.058649550017435104,
+    "p95_seconds": 0.06849289999809116,
+    "samples": 20
+  },
+  "drill": {
+    "median_seconds": 0.009447799995541573,
+    "p95_seconds": 0.012193899950943887,
+    "samples": 20
+  },
+  "artifact_bytes": 3119559,
+  "limitations": [
+    "Pipeline measured once; no pipeline p95",
+    "No browser time or peak RSS measurement",
+    "No claim of cold disk cache"
+  ]
+}

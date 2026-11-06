@@ -1,0 +1,12 @@
+{
+  "url": "http://127.0.0.1:8765/?run=45b00afb6d0343298e03b70c63558649&tab=pivot",
+  "passed": [
+    "login",
+    "run through UI",
+    "overview drill",
+    "native source",
+    "pivot drill",
+    "refresh direct URL"
+  ],
+  "pageErrors": []
+}

@@ -3,12 +3,14 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 
 def capability():
+ if os.environ.get('SPR_TRUSTED_LOCAL_CODE')=='1':return 'Доверенный локальный Python (без изоляции ОС)'
  if sys.platform=='darwin' and Path('/usr/bin/sandbox-exec').exists():return 'macOS Seatbelt'
  if sys.platform=='linux' and shutil.which('bwrap'):return 'Linux bubblewrap'
  return None
 
 def execute(code,params,artifact):
  if not capability():return {'error':'Изоляция ОС недоступна. Исполнение кода отключено.'}
+ if os.environ.get('SPR_TRUSTED_LOCAL_CODE')=='1':return execute_trusted(code,params,artifact)
  artifact=Path(artifact).resolve()
  with tempfile.TemporaryDirectory(prefix='spr-exec-') as tmp:
   tmp=Path(tmp).resolve();job=tmp/'job.json';job.write_text(json.dumps({'code':code,'params':params,'artifact':str(artifact)}));python=str(ROOT/'.venv/bin/python');host=str(ROOT/'spr/check_host.py')
@@ -32,5 +34,32 @@ def execute(code,params,artifact):
     try:os.killpg(proc.pid,signal.SIGKILL)
     except ProcessLookupError:pass
    out.seek(0);err.seek(0);raw=out.read(4*1024*1024);stderr=err.read(16000).decode(errors='replace')
+  try:return json.loads(raw)
+  except Exception:return {'error':'Исполнитель завершился без результата','stderr':stderr,'exit_code':proc.returncode}
+
+
+def execute_trusted(code,params,artifact):
+ """Explicit opt-in for code trusted by the laptop owner; not a sandbox."""
+ with tempfile.TemporaryDirectory(prefix='spr-local-') as folder:
+  tmp=Path(folder)
+  job=tmp/'job.json'
+  job.write_text(json.dumps({'code':code,'params':params,'artifact':str(Path(artifact).resolve()),'trusted_local':True}),encoding='utf-8')
+  env={k:v for k,v in os.environ.items() if k.upper() in ('SYSTEMROOT','WINDIR','PATH','TEMP','TMP','HOME','USERPROFILE')}
+  env.update(POLARS_MAX_THREADS='2',OMP_NUM_THREADS='1',PYTHONIOENCODING='utf-8')
+  with (tmp/'stdout').open('w+b') as out,(tmp/'stderr').open('w+b') as err:
+   proc=subprocess.Popen([sys.executable,'-I','-X','utf8',str(ROOT/'spr/check_host.py'),str(job)],cwd=tmp,env=env,stdout=out,stderr=err,start_new_session=os.name!='nt')
+   timed_out=False
+   try:proc.wait(timeout=25)
+   except subprocess.TimeoutExpired:timed_out=True
+   finally:
+    if os.name=='nt':
+     if proc.poll() is None:subprocess.run(['taskkill','/PID',str(proc.pid),'/T','/F'],capture_output=True)
+    else:
+     try:os.killpg(proc.pid,signal.SIGKILL)
+     except ProcessLookupError:pass
+    proc.wait()
+   if timed_out:return {'error':'Превышено время исполнения (25 секунд)'}
+   out.seek(0);err.seek(0)
+   raw=out.read(4*1024*1024+1);stderr=err.read(16000).decode('utf-8',errors='replace')
   try:return json.loads(raw)
   except Exception:return {'error':'Исполнитель завершился без результата','stderr':stderr,'exit_code':proc.returncode}
