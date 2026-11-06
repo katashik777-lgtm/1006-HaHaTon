@@ -1,0 +1,28 @@
+{
+  "BEFORE_MASTER": {
+    "files": 2002,
+    "bytes": 10495198,
+    "top_keys": {
+      "appData": 2002,
+      "decisionResult": 2002,
+      "characteristics": 2002,
+      "ext_data": 2002,
+      "product_catalog": 2002,
+      "tariff_matrix": 2002
+    },
+    "parse_errors": []
+  },
+  "AFTER_BETA": {
+    "files": 2002,
+    "bytes": 10549032,
+    "top_keys": {
+      "appData": 2002,
+      "decisionResult": 2002,
+      "characteristics": 2002,
+      "ext_data": 2002,
+      "product_catalog": 2002,
+      "tariff_matrix": 2002
+    },
+    "parse_errors": []
+  }
+}

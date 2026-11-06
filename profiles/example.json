@@ -1,0 +1,47 @@
+{
+  "name": "example",
+  "teaching": true,
+  "scalar_key": "code",
+  "app_id": "",
+  "exclude": [
+    "company.decisionResult.calculatedAt"
+  ],
+  "arrays": {
+    "company.scoreCardResult": {
+      "mode": "key",
+      "keys": [
+        "name"
+      ]
+    },
+    "company.rejectReasons": {
+      "mode": "value"
+    }
+  },
+  "buckets": {
+    "company.scoreCardResult.value": [
+      {
+        "min": 0,
+        "max": 0.3,
+        "label": "(0 - 0.3]"
+      },
+      {
+        "min": 0.3,
+        "max": 0.6,
+        "label": "(0.3 - 0.6]"
+      }
+    ],
+    "company.limitResult.limit": [
+      {
+        "min": 100000,
+        "max": 250000,
+        "label": "(100K - 250K]"
+      },
+      {
+        "min": 0,
+        "max": 100000,
+        "label": "(0 - 100K]"
+      }
+    ]
+  },
+  "decision_path": "company.decisionResult.decision"
+}

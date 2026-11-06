@@ -1,0 +1,73 @@
+{
+  "name": "Основной СПР",
+  "app_id": "appData.application_id",
+  "required": [
+    "appData.application_id",
+    "decisionResult.decision"
+  ],
+  "exclude": [
+    "appData.request_id",
+    "appData.createDateTime"
+  ],
+  "arrays": {
+    "decisionResult.available_offers": {
+      "mode": "key",
+      "keys": [
+        "product_id",
+        "type"
+      ]
+    },
+    "decisionResult.product_trials": {
+      "mode": "key",
+      "keys": [
+        "product_id"
+      ]
+    },
+    "decisionResult.product_trials.rules": {
+      "mode": "key",
+      "keys": [
+        "name"
+      ]
+    },
+    "decisionResult.product_trials.scoring.scoreModels": {
+      "mode": "key",
+      "keys": [
+        "modelName"
+      ]
+    },
+    "decisionResult.scoring": {
+      "mode": "key",
+      "keys": [
+        "modelName"
+      ]
+    },
+    "ext_data": {
+      "mode": "key",
+      "keys": [
+        "body.action"
+      ]
+    },
+    "product_catalog": {
+      "mode": "key",
+      "keys": [
+        "mfo_id",
+        "product_id"
+      ]
+    },
+    "tariff_matrix": {
+      "mode": "key",
+      "keys": [
+        "mfo_id",
+        "product_id"
+      ]
+    },
+    "decisionResult.scoring.value": {
+      "mode": "index"
+    }
+  },
+  "buckets": {},
+  "numeric_tolerance": 0,
+  "decision_path": "decisionResult.decision",
+  "trials_path": "decisionResult.product_trials",
+  "offers_path": "decisionResult.available_offers"
+}
