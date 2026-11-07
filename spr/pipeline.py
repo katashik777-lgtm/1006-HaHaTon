@@ -32,7 +32,7 @@ def product_rows(app,b,a,p):
  rows=[]
  for src,d in [('BEFORE',b),('AFTER',a)]:
   for t in get(d,p.get('trials_path','decisionResult.product_trials'),[]) or []:
-   rows.append({'APP_ID':app,'SOURCE':src,'PRODUCT':str(t.get('product_id')),'PARTNER':str(t.get('partner_type','')),'MODEL':get(t,'scoring.pd.modelName'),'SCORE':get(t,'scoring.pd.value'),'CUTOFF':get(t,'cutOff.value'),'DECISION':t.get('decision'),'STOP':any(x.get('hit') is True for x in t.get('rules',[]))})
+   rows.append({'APP_ID':app,'SOURCE':src,'PRODUCT':str(t.get('product_id')),'PARTNER':str(t.get('partner_type','')),'MODEL':get(t,'scoring.pd.modelName'),'SCORE':get(t,'scoring.pd.value'),'CUTOFF':get(t,'cutOff.value'),'DECISION':t.get('decision'),'STOP_UNKNOWN':any(x.get('hit') is None for x in t.get('rules',[])), 'STOP':any(x.get('hit') is True for x in t.get('rules',[]))})
  return rows
 
 def process(files,profile,target,progress=lambda *x:None,expected=None,checks=None,read_workers=1):
@@ -77,7 +77,7 @@ def process(files,profile,target,progress=lambda *x:None,expected=None,checks=No
  for k in ['DECISION','PD_MODEL','CUTOFF','REJECT_REASON','SCORE_OKB','TOP_OFFER']:
   for src in ['BEFORE','AFTER']:ss[k+'_'+src]=pl.Float64 if k=='SCORE_OKB' else pl.String
  s=pl.DataFrame(segs,schema=ss)
- products=pl.DataFrame([r for a in valid for r in product_rows(a,docs[a,'BEFORE'],docs[a,'AFTER'],profile)],schema={'APP_ID':pl.String,'SOURCE':pl.String,'PRODUCT':pl.String,'PARTNER':pl.String,'MODEL':pl.String,'SCORE':pl.Float64,'CUTOFF':pl.Float64,'DECISION':pl.String,'STOP':pl.Boolean})
+ products=pl.DataFrame([r for a in valid for r in product_rows(a,docs[a,'BEFORE'],docs[a,'AFTER'],profile)],schema={'APP_ID':pl.String,'SOURCE':pl.String,'PRODUCT':pl.String,'PARTNER':pl.String,'MODEL':pl.String,'SCORE':pl.Float64,'CUTOFF':pl.Float64,'DECISION':pl.String,'STOP':pl.Boolean,'STOP_UNKNOWN':pl.Boolean})
  timings['segments']=time.perf_counter()-stage
  stage=time.perf_counter();membership=n.filter(pl.col('APP_ID').is_in(valid)).join(c.select(['APP_ID','PATH','KEY_JSON','DIFF_FLAG','CHANGE_TYPE','VALUE_BEFORE','VALUE_AFTER']),on=['APP_ID','PATH','KEY_JSON'],how='inner').rename({'ADJUSTED_VALUE':'VALUE_ADJUSTED'})
  dims=['PREFIX','CLASS','SUFFIX','ARRAY_KEY','KEY','VALUE_ADJUSTED','DIFF_FLAG','SOURCE']

@@ -86,7 +86,7 @@ def projects(u=Depends(user)):
  with Session() as s:
   q=select(Record).where(Record.kind=='project')
   if not u.admin:q=q.where(Record.id.in_(select(Member.project).where(Member.user_id==u.id)))
-  return [serialize(r) for r in s.scalars(q)]
+  return [{**serialize(r),'role':access(s,u,r.id)} for r in s.scalars(q)]
 @app.post('/api/projects')
 def project_new(body:dict,u=Depends(user)):
  if not u.admin:raise HTTPException(403)
@@ -235,7 +235,7 @@ def scenario(runid:str,body:dict,u=Depends(user)):
  with mart_for(u,runid) as m:
   rows=m.query('SELECT * FROM products WHERE SOURCE=\'AFTER\' AND PRODUCT=? ORDER BY APP_ID',[product])
   if not rows:raise HTTPException(422,'Для продукта нет баллов и порогов')
-  eligible=[r for r in rows if r['SCORE'] is not None and r['CUTOFF'] is not None]
+  eligible=[r for r in rows if r['SCORE'] is not None and r['CUTOFF'] is not None and not r.get('STOP_UNKNOWN',True)]
   for r in eligible:r['SIMULATED']='APPROVE' if not r['STOP'] and (r['SCORE']>=cutoff if direction=='ge' else r['SCORE']<=cutoff) else 'REJECT'
   changed=[r for r in eligible if r['SIMULATED']!=r['DECISION']]
   result={'base':runid,'cutoff':cutoff,'direction':direction,'product':product,'total':len(eligible),'excluded':len(rows)-len(eligible),'changed':len(changed),'items':changed,'simulation':True,'limitations':'Симуляция одного продуктового порога и hit=true. Это не ответ банковской СПР; остальные правила и офферы не пересчитываются.','code':'APPROVE if not STOP and compare(SCORE, cutoff, direction) else REJECT'}
@@ -283,6 +283,119 @@ def export(runid:str,format:str='html',filters:str='{}',dimensions:str='',u=Depe
   for r in rows:w.writerow({k:("'"+v if isinstance(v,str) and v.lstrip().startswith(('=','+','-','@','\t','\r')) else v) for k,v in r.items()})
   return Response(('\ufeff'+stream.getvalue()).encode(),media_type='text/csv',headers={'Content-Disposition':'attachment; filename="facts.csv"'})
  raise HTTPException(422)
+
+# Registration grants no project privileges; an administrator approves access.
+@app.post('/api/register')
+def register(body:dict,request:Request):
+ name=str(body.get('name','')).strip()
+ if not 3<=len(name)<=80:raise ValueError('Логин: от 3 до 80 символов')
+ password=hash_password(str(body.get('password','')))
+ with Session.begin() as s:
+  if s.scalar(select(User.id).where(User.name==name)):raise HTTPException(409,'Логин уже занят')
+  s.add(User(id=uid(),name=name,password=password,admin=0))
+  audit(s,'','','register',name,request_id=request.state.request_id)
+ return {'ok':True,'message':'Аккаунт создан. Администратор назначит доступ.'}
+
+@app.get('/api/admin/users')
+def admin_users(u=Depends(user)):
+ if not u.admin:raise HTTPException(403)
+ with Session() as s:return [{**serialize(usr),'memberships':[serialize(m) for m in s.scalars(select(Member).where(Member.user_id==usr.id))]} for usr in s.scalars(select(User).order_by(User.name))]
+
+@app.post('/api/admin/users/{ident}')
+def admin_update(ident:str,body:dict,request:Request,u=Depends(user)):
+ if not u.admin:raise HTTPException(403)
+ with Session.begin() as s:
+  target=s.get(User,ident)
+  if not target:raise HTTPException(404)
+  if 'admin' in body:
+   if ident==u.id and not body['admin']:raise ValueError('Нельзя снять собственные права администратора')
+   target.admin=int(bool(body['admin']))
+  project=body.get('project');role=body.get('role')
+  if project:
+   record=s.get(Record,project)
+   if not record or record.kind!='project':raise ValueError('Проект не найден')
+   if role not in ('lead','analyst','observer','none'):raise ValueError('Неизвестная роль')
+   m=s.scalar(select(Member).where(Member.user_id==ident,Member.project==project))
+   if role=='none':
+    if m:s.delete(m)
+   elif m:m.role=role
+   else:s.add(Member(user_id=ident,project=project,role=role))
+  if ident!=u.id:s.execute(delete(Login).where(Login.user_id==ident))
+  audit(s,u.id,project or '','access_change',ident,{'admin':target.admin,'role':role},request_id=request.state.request_id)
+ return {'ok':True}
+
+@app.get('/api/runs/{runid}/decision-factors')
+def decision_factors(runid:str,direction:str='le',u=Depends(user)):
+ from .decision import decide
+ if direction not in ('le','ge'):raise ValueError('Выберите направление порога')
+ with mart_for(u,runid) as m:rows=m.query('SELECT * FROM products ORDER BY APP_ID,PRODUCT,SOURCE')
+ for r in rows:
+  stops=[True] if r['STOP'] else [None] if r.get('STOP_UNKNOWN',True) else []
+  if r['CUTOFF'] is None:result,reason='UNKNOWN','INCOMPLETE'
+  else:result,reason=decide(r['SCORE'],stops,r['CUTOFF'],direction)
+  r.update(EXPECTED=result,REASON=reason,DIRECTION=direction)
+ return {'items':rows,'definition':'Проверка одного порога и стоп-факторов, не восстановление всей стратегии'}
+
+@app.post('/api/projects/{project}/pools')
+def prepare_pool(project:str,body:dict,u=Depends(user)):
+ rows=body.get('rows',[])
+ if not isinstance(rows,list) or not 1<=len(rows)<=2000:raise ValueError('Загрузите от 1 до 2000 заявок')
+ if not isinstance(body.get('filters',{}),dict):raise ValueError('Фильтры должны быть объектом')
+ if len(json.dumps(rows))>4000000:raise ValueError('Пул слишком большой: максимум 4 МБ')
+ ids=set();selected=[]
+ for row in rows:
+  if not isinstance(row,dict) or not str(row.get('id','')).strip():raise ValueError('У каждой заявки нужен id')
+  ident=str(row['id'])
+  if any(c in ident for c in '/\\') or ident in ('.','..'):raise ValueError('Недопустимый id')
+  if ident in ids:raise ValueError('Повторный id: '+ident)
+  ids.add(ident)
+  if all(row.get(k)==v for k,v in body.get('filters',{}).items()):selected.append(row)
+ with Session.begin() as s:
+  access(s,u,project,lead=True);ident=uid()
+  s.add(Record(id=ident,project=project,kind='pool',name=str(body.get('name','Пул заявок'))[:200],author=u.id,body={'rows':selected,'filters':body.get('filters',{}),'input_count':len(rows)}))
+  audit(s,u.id,project,'pool_prepare',ident,{'count':len(selected)})
+ return {'id':ident,'count':len(selected)}
+
+@app.post('/api/projects/{project}/pools/{poolid}/execute')
+def execute_pool(project:str,poolid:str,body:dict,u=Depends(user)):
+ from .decision import decide
+ from .normalize import get
+ with Session() as s:
+  access(s,u,project,lead=True);pool=s.get(Record,poolid)
+  if not pool or pool.project!=project or pool.kind!='pool':raise HTTPException(404)
+  rows=pool.body['rows']
+ if not rows:raise ValueError('Пул пуст')
+ versions=body.get('versions',{})
+ if set(versions)!=set(['BEFORE','AFTER']):raise ValueError('Нужны конфигурации BEFORE и AFTER')
+ mode=body.get('mode','demo')
+ if mode not in ('demo','http'):raise ValueError('Неизвестный исполнитель')
+ if mode=='http':
+  import os,httpx
+  urls={src:os.environ.get('SPR_'+src+'_URL') for src in versions}
+  if not all(urls.values()):raise HTTPException(409,'Настройте SPR_BEFORE_URL и SPR_AFTER_URL на сервере')
+  if len(rows)>100:raise ValueError('HTTP-прогон: максимум 100 заявок за запуск')
+ documents=[]
+ for source,config in versions.items():
+  for row in rows:
+   if mode=='http':
+    try:
+     with httpx.Client(timeout=15,follow_redirects=False) as client:
+      response=client.post(urls[source],json={'application':row,'version':config},headers={'Authorization':'Bearer '+os.environ.get('SPR_'+source+'_TOKEN','')})
+      response.raise_for_status();doc=response.json()
+     if not isinstance(doc,dict) or get(doc,'appData.application_id')!=str(row['id']):raise ValueError('Ответ СПР должен содержать appData.application_id исходной заявки')
+    except Exception:raise HTTPException(502,'Ошибка подключения или контракта ответа СПР; датасет не опубликован')
+    documents.append((source,str(row['id']),doc));continue
+   stops=row.get('stops',[])
+   if not isinstance(stops,list) or any(v is not None and not isinstance(v,bool) for v in stops):raise ValueError('stops: массив true/false/null')
+   decision,reason=decide(row.get('score'),stops,config.get('cutoff',.5),config.get('direction','le'))
+   documents.append((source,str(row['id']),{'appData':{'application_id':str(row['id'])},'decisionResult':{'decision':decision,'product_trials':[{'product_id':str(row.get('product','demo')),'decision':decision,'rejectReason':reason,'scoring':{'pd':{'modelName':'demo-score','value':row.get('score')}},'cutOff':{'value':config.get('cutoff',.5)},'rules':[{'name':'stop_'+str(i),'hit':v} for i,v in enumerate(stops)]}]}}))
+ dataset=uid();entries=[]
+ for source,appid,doc in documents:
+  ident=uid();path=DATA/'sources'/project/dataset/ident;path.parent.mkdir(parents=True,exist_ok=True);raw=json.dumps(doc).encode();path.write_bytes(raw)
+  entries.append(File(id=ident,project=project,dataset=dataset,source=source,name=appid+'.json',path=str(path),sha256=hashlib.sha256(raw).hexdigest(),size=len(raw),format='json'))
+ with Session.begin() as s:
+  s.add(Record(id=dataset,project=project,kind='dataset',name=('Симуляция · ' if mode=='demo' else 'СПР · ')+pool.name,author=u.id,body={'simulation':mode=='demo','pool':poolid,'versions':versions,'engine':'demo-score-v1' if mode=='demo' else 'http-adapter-v1','limitations':'Демонстрационная СПР: стоп-факторы и один скор, не банковская стратегия'}));s.add_all(entries);audit(s,u.id,project,'pool_execute',dataset,{'pool':poolid,'simulation':mode=='demo'})
+ return {'id':dataset,'simulation':mode=='demo','files':len(entries)}
 
 if (ROOT/'frontend/dist/assets').exists():app.mount('/assets',StaticFiles(directory=ROOT/'frontend/dist/assets'),name='assets')
 @app.get('/{path:path}')
