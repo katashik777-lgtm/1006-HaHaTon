@@ -13,7 +13,7 @@ def execute(code,params,artifact):
  if os.environ.get('SPR_TRUSTED_LOCAL_CODE')=='1':return execute_trusted(code,params,artifact)
  artifact=Path(artifact).resolve()
  with tempfile.TemporaryDirectory(prefix='spr-exec-') as tmp:
-  tmp=Path(tmp).resolve();job=tmp/'job.json';job.write_text(json.dumps({'code':code,'params':params,'artifact':str(artifact)}));python=str(ROOT/'.venv/bin/python');host=str(ROOT/'spr/check_host.py')
+  tmp=Path(tmp).resolve();job=tmp/'job.json';job.write_text(json.dumps({'code':code,'params':params,'artifact':str(artifact)}));python=sys.executable;host=str(ROOT/'spr/check_host.py')
   command=[python,'-I',host,str(job)]
   if sys.platform=='darwin':
    allow=[str(ROOT/'.venv'),str(ROOT/'spr'),str(artifact),str(tmp),'/System','/usr','/bin','/Library','/opt/homebrew','/private/var/db/dyld','/dev','/private/etc']
@@ -21,9 +21,11 @@ def execute(code,params,artifact):
    policyfile=tmp/'policy.sb';policyfile.write_text(policy);command=['/usr/bin/sandbox-exec','-f',str(policyfile)]+command
   else:
    command=['bwrap','--unshare-all','--die-with-parent','--new-session','--cap-drop','ALL','--clearenv','--setenv','PATH','/usr/bin','--setenv','POLARS_MAX_THREADS','2','--setenv','HOME','/tmp','--proc','/proc','--dev','/dev','--tmpfs','/tmp']
-   for p in ['/usr','/lib','/lib64',str(ROOT/'.venv'),str(ROOT/'spr'),str(artifact),str(tmp)]:
+   # venv Python may point into setup-python, pyenv or /opt runtimes.
+   runtime=str(Path(sys.base_prefix).resolve())
+   for p in dict.fromkeys(['/usr','/lib','/lib64',runtime,str(Path(sys.executable).resolve().parent.parent),sys.prefix,str(ROOT/'spr'),str(artifact),str(tmp)]):
     if Path(p).exists():command+=['--ro-bind',p,p]
-   command += [python,'-I',host,str(job)]
+   command += ['--remount-ro','/tmp','--chdir','/tmp',python,'-I',host,str(job)]
   env={'PATH':'/usr/bin:/bin:/opt/homebrew/bin','HOME':str(tmp),'TMPDIR':str(tmp),'POLARS_MAX_THREADS':'2','OMP_NUM_THREADS':'1','PYTHONDONTWRITEBYTECODE':'1'}
   with (tmp/'stdout').open('w+b') as out,(tmp/'stderr').open('w+b') as err:
    proc=subprocess.Popen(command,stdout=out,stderr=err,env=env,start_new_session=True)
