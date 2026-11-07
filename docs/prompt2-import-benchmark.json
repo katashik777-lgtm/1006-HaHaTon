@@ -1,0 +1,180 @@
+{
+  "source": "provided JSON sample RUN-20260827-0001, not synthetic",
+  "files": 4004,
+  "input_bytes": 22103414,
+  "conditions": "Sequential runs on same files, OS cache not cleared, three full imports per variant. Baseline is repository index snapshot before prompt 2 changes.",
+  "runs": {
+    "before": {
+      "summary": {
+        "discovered": 2002,
+        "valid_before": 2002,
+        "valid_after": 2002,
+        "valid_pairs": 2002,
+        "excluded": 0,
+        "changed_apps": 502,
+        "decision_changed": 385,
+        "attributes": 289533,
+        "changes": 14412,
+        "normalized_rows": 572221,
+        "files": 4004,
+        "quality": {
+          "parsed": 4004,
+          "missing": 0,
+          "parse_error": 0,
+          "schema_error": 0,
+          "id_conflict": 0,
+          "duplicate": 0
+        }
+      },
+      "timings": {
+        "read_parse_normalize": 5.699517200002447,
+        "union": 0.0020336000015959144,
+        "comparison": 0.17968139999720734,
+        "segments": 0.12337440000555944,
+        "aggregations": 0.1306031999993138,
+        "parquet": 0.2631537999986904,
+        "checks": 5.2125642000028165,
+        "total": 11.634303500002716
+      },
+      "artifacts": "C:\\Users\\vmvbi\\1006-HaHaTon\\tmp\\prompt2-full-before-1794071250203483600",
+      "repetitions": [
+        {
+          "read_parse_normalize": 5.632485299996915,
+          "union": 0.001970700002857484,
+          "comparison": 0.19876249998924322,
+          "segments": 0.12715459999162704,
+          "aggregations": 0.1269487000099616,
+          "parquet": 0.2842235999996774,
+          "checks": 5.15295979999064,
+          "total": 11.54610199999297
+        },
+        {
+          "read_parse_normalize": 5.706157099994016,
+          "union": 0.0018589999963296577,
+          "comparison": 0.19088139999075793,
+          "segments": 0.1369066000042949,
+          "aggregations": 0.13132349999796133,
+          "parquet": 0.29553740000119433,
+          "checks": 5.419930999996723,
+          "total": 11.90584310000122
+        },
+        {
+          "read_parse_normalize": 5.699517200002447,
+          "union": 0.0020336000015959144,
+          "comparison": 0.17968139999720734,
+          "segments": 0.12337440000555944,
+          "aggregations": 0.1306031999993138,
+          "parquet": 0.2631537999986904,
+          "checks": 5.2125642000028165,
+          "total": 11.634303500002716
+        }
+      ],
+      "median_timings": {
+        "read_parse_normalize": 5.699517200002447,
+        "union": 0.001970700002857484,
+        "comparison": 0.19088139999075793,
+        "segments": 0.12715459999162704,
+        "aggregations": 0.1306031999993138,
+        "parquet": 0.2842235999996774,
+        "checks": 5.2125642000028165,
+        "total": 11.634303500002716
+      }
+    },
+    "after": {
+      "summary": {
+        "discovered": 2002,
+        "valid_before": 2002,
+        "valid_after": 2002,
+        "valid_pairs": 2002,
+        "excluded": 0,
+        "changed_apps": 502,
+        "decision_changed": 385,
+        "attributes": 289533,
+        "changes": 14412,
+        "normalized_rows": 572221,
+        "files": 4004,
+        "quality": {
+          "parsed": 4004,
+          "missing": 0,
+          "parse_error": 0,
+          "schema_error": 0,
+          "id_conflict": 0,
+          "duplicate": 0
+        }
+      },
+      "timings": {
+        "read": 0.6227064999984577,
+        "parse": 0.18413709934975486,
+        "normalize": 4.258461800869554,
+        "read_parse_normalize": 6.358124300008058,
+        "union": 0.0021785999997518957,
+        "comparison": 0.1937300999998115,
+        "segments": 0.16088869998930022,
+        "aggregations": 0.1461020999995526,
+        "parquet": 0.2990480000007665,
+        "indexes": 1.0840222000115318,
+        "checks": 3.2630048999999417,
+        "total": 11.525072400007048
+      },
+      "artifacts": "C:\\Users\\vmvbi\\1006-HaHaTon\\tmp\\prompt2-full-after-1794071262922221100",
+      "repetitions": [
+        {
+          "read": 0.6403923002071679,
+          "parse": 0.19587350050278474,
+          "normalize": 4.390809800272109,
+          "read_parse_normalize": 6.6925067999982275,
+          "union": 0.0016081999929156154,
+          "comparison": 0.20395020001160447,
+          "segments": 0.1354085000057239,
+          "aggregations": 0.13415830000303686,
+          "parquet": 0.29792989999987185,
+          "indexes": 1.1583210000098916,
+          "checks": 3.3220744999998715,
+          "total": 11.97058379999362
+        },
+        {
+          "read": 0.8362162002304103,
+          "parse": 0.20715809969988186,
+          "normalize": 4.49971689969243,
+          "read_parse_normalize": 6.91420339999604,
+          "union": 0.0027253000007476658,
+          "comparison": 0.20186950000061188,
+          "segments": 0.15500949999841396,
+          "aggregations": 0.12429669999983162,
+          "parquet": 0.27244339999742806,
+          "indexes": 1.226420799997868,
+          "checks": 3.5763333000068087,
+          "total": 12.503893899993272
+        },
+        {
+          "read": 0.6227064999984577,
+          "parse": 0.18413709934975486,
+          "normalize": 4.258461800869554,
+          "read_parse_normalize": 6.358124300008058,
+          "union": 0.0021785999997518957,
+          "comparison": 0.1937300999998115,
+          "segments": 0.16088869998930022,
+          "aggregations": 0.1461020999995526,
+          "parquet": 0.2990480000007665,
+          "indexes": 1.0840222000115318,
+          "checks": 3.2630048999999417,
+          "total": 11.525072400007048
+        }
+      ],
+      "median_timings": {
+        "read": 0.6403923002071679,
+        "parse": 0.19587350050278474,
+        "normalize": 4.390809800272109,
+        "read_parse_normalize": 6.6925067999982275,
+        "union": 0.0021785999997518957,
+        "comparison": 0.20186950000061188,
+        "segments": 0.15500949999841396,
+        "aggregations": 0.13415830000303686,
+        "parquet": 0.29792989999987185,
+        "indexes": 1.1583210000098916,
+        "checks": 3.3220744999998715,
+        "total": 11.97058379999362
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+// Decimal arithmetic for finite JSON numbers; display rounding never selects rows.
+function parts(value:number):[bigint,number]{if(!Number.isFinite(value))throw Error('Ожидается конечное число');const [mantissa,exponent='0']=String(value).toLowerCase().split('e');const decimals=mantissa.split('.')[1]?.length||0;return [BigInt(mantissa.replace('.','')),Number(exponent)-decimals]}
+function align(a:number,b:number):[bigint,bigint,number]{const [x,e]=parts(a),[y,f]=parts(b);const scale=Math.min(e,f);return [x*10n**BigInt(e-scale),y*10n**BigInt(f-scale),scale]}
+export function decimalDifference(a:number,b:number){const[x,y,e]=align(a,b);return Number(String(x-y)+'e'+e)}
+export function withinThreshold(value:number,threshold:number,width:number){if(!Number.isFinite(width)||width<0)return false;const[x,y,e]=align(value,threshold);const[w,f]=parts(width);const scale=Math.min(e,f),difference=(x-y)*10n**BigInt(e-scale);return (difference<0n?-difference:difference)<=w*10n**BigInt(f-scale)}
+export function penalizedScore(score:number,penalty:number,count:number,direction:string){if(!Number.isInteger(count)||count<0)throw Error('Некорректное количество стоп-факторов');const[p,e]=parts(penalty);const total=Number(String(p*BigInt(count))+'e'+e);return decimalDifference(score,['le','lt'].includes(direction)?-total:total)}

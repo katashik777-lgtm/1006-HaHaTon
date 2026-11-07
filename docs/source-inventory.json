@@ -1,0 +1,374 @@
+[
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/example/01_response_BEFORE.json",
+    "size": 529,
+    "sha256": "7229099d42868cc8e34b18eb029945f88a0511499a1798d66c3292524255d853",
+    "structure": [
+      "company"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/example/02_response_AFTER.json",
+    "size": 582,
+    "sha256": "8d5240c83721cb0299523cd810925192024e5c06bd2046bb6ecf9a971bcf5b56",
+    "structure": [
+      "company"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/example/03_normalized_BEFORE.csv",
+    "size": 967,
+    "sha256": "ee8c9e4e78c70cf10f467ea7767ff13d187756318009cefb680399d50b100452",
+    "rows": 12,
+    "columns": [
+      "APP_ID",
+      "SOURCE",
+      "PREFIX",
+      "CLASS",
+      "SUFFIX",
+      "ARRAY_KEY",
+      "KEY",
+      "VALUE",
+      "ADJUSTED_VALUE"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/example/04_normalized_AFTER.csv",
+    "size": 1101,
+    "sha256": "bdad3c0afc69fd53670834b7343139acffcda2444e2684e48459a67a49893035",
+    "rows": 14,
+    "columns": [
+      "APP_ID",
+      "SOURCE",
+      "PREFIX",
+      "CLASS",
+      "SUFFIX",
+      "ARRAY_KEY",
+      "KEY",
+      "VALUE",
+      "ADJUSTED_VALUE"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/example/05_union.csv",
+    "size": 1995,
+    "sha256": "c3b188f5d54dee7713554418a19f77fe7e717715c6136c67f8a6adbdd7f5c1b1",
+    "rows": 26,
+    "columns": [
+      "APP_ID",
+      "SOURCE",
+      "PREFIX",
+      "CLASS",
+      "SUFFIX",
+      "ARRAY_KEY",
+      "KEY",
+      "VALUE",
+      "ADJUSTED_VALUE"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/example/06_comparison.csv",
+    "size": 1935,
+    "sha256": "b3ac2ca8f1abcd491ed1fd091d6bf21eb57e72921b8ca4b602faf24cfaae2b7e",
+    "rows": 14,
+    "columns": [
+      "APP_ID",
+      "PREFIX",
+      "CLASS",
+      "SUFFIX",
+      "ARRAY_KEY",
+      "KEY",
+      "PATH",
+      "VALUE_BEFORE",
+      "VALUE_AFTER",
+      "ADJUSTED_BEFORE",
+      "ADJUSTED_AFTER",
+      "DIFF_FLAG",
+      "CHANGE_TYPE"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/example/README.md",
+    "size": 7792,
+    "sha256": "dcf8a0b0b420714199194e0abab8fcd4d7f59d01d7334fa770e0f5c7bbd6295f",
+    "text": "# Учебный пример: приведение данных по этапам\n\n> [!WARNING] Структура здесь другая, чем в вашем датасете\n> Пример намеренно упрощён: в нём **12 строк на заявку, которые читаются глазами**, а не 139. Имена полей — `company`, `scoreCardResult`, `TAKEUP"
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/example/Сводная_таблица_пример.xlsx",
+    "size": 898142,
+    "sha256": "47912380c06a7629e66a90e013d7b40351a9cc0ab66ac40356fdf77ae7a62b18",
+    "sheets": {
+      "Как читать": {
+        "rows": 19,
+        "columns": 1,
+        "formulas": 0
+      },
+      "Витрина": {
+        "rows": 14421,
+        "columns": 16,
+        "formulas": 0
+      },
+      "Сводная": {
+        "rows": 62,
+        "columns": 6,
+        "formulas": 0
+      }
+    }
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/examples/01_response_BEFORE_MASTER_app1001.json",
+    "size": 529,
+    "sha256": "7229099d42868cc8e34b18eb029945f88a0511499a1798d66c3292524255d853",
+    "structure": [
+      "company"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/examples/02_response_AFTER_BETA_app1001.json",
+    "size": 582,
+    "sha256": "8d5240c83721cb0299523cd810925192024e5c06bd2046bb6ecf9a971bcf5b56",
+    "structure": [
+      "company"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/examples/03_normalized_BEFORE_app1001.csv",
+    "size": 946,
+    "sha256": "eb7c9fd099ac64c418c05b25ea81ea31a0936c19ed1c60935c252c7462b8cc36",
+    "rows": 12,
+    "columns": [
+      "APP_ID",
+      "SOURCE",
+      "PREFIX",
+      "CLASS",
+      "SUFFIX",
+      "ARRAY_KEY",
+      "KEY",
+      "VALUE",
+      "ADJUSTED_VALUE"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/examples/04_normalized_AFTER_app1001.csv",
+    "size": 1074,
+    "sha256": "e8ba0b864ade6624e32944d5b7dfa1a1105b87c9fbbc8a18e2fc15e1522409e0",
+    "rows": 14,
+    "columns": [
+      "APP_ID",
+      "SOURCE",
+      "PREFIX",
+      "CLASS",
+      "SUFFIX",
+      "ARRAY_KEY",
+      "KEY",
+      "VALUE",
+      "ADJUSTED_VALUE"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/examples/05_normalized_UNION_app1001.csv",
+    "size": 1948,
+    "sha256": "05ff1e6776cd2520809b27e46a369cdc26831c7e759e86ea5b37c479b6e36519",
+    "rows": 26,
+    "columns": [
+      "APP_ID",
+      "SOURCE",
+      "PREFIX",
+      "CLASS",
+      "SUFFIX",
+      "ARRAY_KEY",
+      "KEY",
+      "VALUE",
+      "ADJUSTED_VALUE"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/examples/06_comparison_app1001.csv",
+    "size": 1527,
+    "sha256": "de5ded83f3bafdf48d84bf22ed3cd63590461cb29a24499d83870481982625e8",
+    "rows": 14,
+    "columns": [
+      "APP_ID",
+      "PREFIX",
+      "CLASS",
+      "SUFFIX",
+      "ARRAY_KEY",
+      "KEY",
+      "VALUE_BEFORE",
+      "VALUE_AFTER",
+      "ADJUSTED_BEFORE",
+      "ADJUSTED_AFTER",
+      "DIFF_FLAG",
+      "COMMENT"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/examples/07_pivot_facts_demo.csv",
+    "size": 4445,
+    "sha256": "a34e8e804fe248e18598ba19e52df2258e30b2e3a216c87854338b44bc59c978",
+    "rows": 59,
+    "columns": [
+      "PREFIX",
+      "CLASS",
+      "SUFFIX",
+      "ARRAY_KEY",
+      "KEY",
+      "VALUE_ADJUSTED",
+      "DIFF_FLAG",
+      "SOURCE",
+      "CNT"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/examples/08_pivot_facts_demo.json",
+    "size": 14169,
+    "sha256": "ee780d9f758a969fac4c256f523e4a1349c8185f9189cd2d24f2ff14e9eb6a70",
+    "structure": {
+      "rows": 59
+    }
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/examples/09_pivot_report_demo.xlsx",
+    "size": 20659,
+    "sha256": "2dd8d73fe07134381a4cf113aec8d518dbc961e8bb4087233160d48bbfe3f5d6",
+    "sheets": {
+      "Сводная таблица": {
+        "rows": 54,
+        "columns": 10,
+        "formulas": 76
+      },
+      "Исходные данные": {
+        "rows": 62,
+        "columns": 9,
+        "formulas": 0
+      }
+    }
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/examples/README.md",
+    "size": 9002,
+    "sha256": "463849166c20342db9c492c29411498f0b4763ebf2141517f034b950a0ee165c",
+    "text": "# examples — данные примера из документации\n\nФайлы этой папки — тот же пример, что разобран в [[Модуль 3. Приведение и нормализация данных]] и показан в [[Модуль 4. Визуализация отчёта в браузере]], только в машиночитаемом виде. Их можно скормить про"
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/examples/Прототип отчёта WebDataRocks.html",
+    "size": 6108,
+    "sha256": "881ad76adedb672877a8da6bf3c614c28c3ddd6a29fd2f8892116c9729677f76",
+    "text": "<!DOCTYPE html>\n<html lang=\"ru\">\n<head>\n<meta charset=\"utf-8\">\n<title>Прототип сводного отчёта — WebDataRocks Pivot Table</title>\n<!-- WebDataRocks Pivot Table: https://habr.com/ru/articles/478750/ -->\n<link rel=\"stylesheet\" href=\"https://cdn.webdata"
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/samples/AFTER/I32554354.json",
+    "size": 4740,
+    "sha256": "41ad38cfc46e47a75672b3260c245f517f556f638506196225a20a8b85d492a8",
+    "structure": [
+      "appData",
+      "decisionResult",
+      "characteristics",
+      "ext_data",
+      "product_catalog",
+      "tariff_matrix"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/samples/AFTER/I32554355.json",
+    "size": 4741,
+    "sha256": "c5698ccbb5532c742bfdff1e58025a97e360dbc2b0d3ee66c8ae4dc4fad2995a",
+    "structure": [
+      "appData",
+      "decisionResult",
+      "characteristics",
+      "ext_data",
+      "product_catalog",
+      "tariff_matrix"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/samples/AFTER/I32554358.json",
+    "size": 6850,
+    "sha256": "86a5e965ce318b1649d636db70bf8f68707c78a54f419445f2d0ed882aacae5a",
+    "structure": [
+      "appData",
+      "decisionResult",
+      "characteristics",
+      "ext_data",
+      "product_catalog",
+      "tariff_matrix"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/samples/AFTER/I32554362.json",
+    "size": 4736,
+    "sha256": "ded0dec0fda746d8a8d9559c928ffaa5976377ba039261908d99e84aa9033ab3",
+    "structure": [
+      "appData",
+      "decisionResult",
+      "characteristics",
+      "ext_data",
+      "product_catalog",
+      "tariff_matrix"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/samples/BEFORE/I32554354.json",
+    "size": 4720,
+    "sha256": "b0454f834d552e97d8d0dabb5957c83dc8c9b28356c6ee4bfba775a0b5a65c3a",
+    "structure": [
+      "appData",
+      "decisionResult",
+      "characteristics",
+      "ext_data",
+      "product_catalog",
+      "tariff_matrix"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/samples/BEFORE/I32554355.json",
+    "size": 4741,
+    "sha256": "c272fcc03c5198ed6554f1c0f9acc1d8f1e688df6e6d5994e558021ffcb38024",
+    "structure": [
+      "appData",
+      "decisionResult",
+      "characteristics",
+      "ext_data",
+      "product_catalog",
+      "tariff_matrix"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/samples/BEFORE/I32554358.json",
+    "size": 6291,
+    "sha256": "3087cb49398afa0d74f2ff1c4bfb61ab58648a856e49f4e198a57b2f9bcdf18c",
+    "structure": [
+      "appData",
+      "decisionResult",
+      "characteristics",
+      "ext_data",
+      "product_catalog",
+      "tariff_matrix"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/samples/BEFORE/I32554362.json",
+    "size": 4902,
+    "sha256": "af9891b1a194747cbd31c9115117e480f055f32a9e207fa218572a2248491699",
+    "structure": [
+      "appData",
+      "decisionResult",
+      "characteristics",
+      "ext_data",
+      "product_catalog",
+      "tariff_matrix"
+    ]
+  },
+  {
+    "path": "ХАКАТОН_СИСТЕМА_АНАЛИЗА_ИЗМЕНЕНИЙ/ПАКЕТ/ЗАДАНИЕ/samples/README.md",
+    "size": 1333,
+    "sha256": "fdb31e8b05e69573690a452d75c383bf312b852595b0d0439b19fa8e9538d83e",
+    "text": "# Ответы из датасета — посмотреть глазами\n\nЧетыре заявки, по ответу в каждом срезе. Взяты из выданного датасета, лежат там же — это просто короткий путь к ним.\n\n| Заявка | Что в ней интересного |\n|---|---|\n| `I32554354` | В срезах есть различия в пра"
+  },
+  {
+    "path": "Система_анализа_изменений_горизонтальная_1.pdf",
+    "pages": 22,
+    "text_length": 495505
+  }
+]

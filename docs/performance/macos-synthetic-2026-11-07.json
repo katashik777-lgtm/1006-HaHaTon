@@ -1,0 +1,56 @@
+{
+  "dataset": "synthetic-20000",
+  "platform": "macOS-15.8.1-arm64-arm-64bit-Mach-O",
+  "python": "3.14.8",
+  "cpu": "arm",
+  "logical_cpus": 10,
+  "polars_threads": 4,
+  "read_workers": 1,
+  "cache": "OS cache not purged; first pipeline run, subsequent warm queries",
+  "summary": {
+    "discovered": 20000,
+    "valid_before": 20000,
+    "valid_after": 20000,
+    "valid_pairs": 20000,
+    "excluded": 0,
+    "changed_apps": 11688,
+    "decision_changed": 2858,
+    "attributes": 141819,
+    "changes": 15344,
+    "normalized_rows": 281819,
+    "files": 40000,
+    "quality": {
+      "missing": 0,
+      "parse_error": 0,
+      "schema_error": 0,
+      "id_conflict": 0,
+      "duplicate": 0
+    }
+  },
+  "pipeline_seconds": {
+    "read_parse_normalize": 4.504897749982774,
+    "union": 0.0048875410575419664,
+    "comparison": 0.10753866587765515,
+    "segments": 0.2003097499255091,
+    "aggregations": 0.05523812514729798,
+    "parquet": 0.15268883295357227,
+    "checks": 0.0003114580176770687,
+    "total": 5.144692457979545
+  },
+  "pivot_new_connection": {
+    "median_seconds": 0.04346316587179899,
+    "p95_seconds": 0.0454728330951184,
+    "samples": 20
+  },
+  "drill": {
+    "median_seconds": 0.005654291482642293,
+    "p95_seconds": 0.006300000008195639,
+    "samples": 20
+  },
+  "artifact_bytes": 3368549,
+  "limitations": [
+    "Pipeline measured once; no pipeline p95",
+    "No browser time or peak RSS measurement",
+    "No claim of cold disk cache"
+  ]
+}

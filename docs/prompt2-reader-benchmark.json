@@ -1,0 +1,21 @@
+{
+  "rows": 289533,
+  "input": "tmp\\benchmark-sequential-warm\\artifacts",
+  "input_bytes": 803357,
+  "repeats": 7,
+  "condition": "same Parquet, warm OS cache, 2 DuckDB threads; publication and full import not measured",
+  "index_build_seconds": 1.2125624999898719,
+  "results": {
+    "before_rebuild": {
+      "open_median_seconds": 0.308655999993789,
+      "first_query_median_seconds": 0.0010110000002896413,
+      "warm_query_median_seconds": 0.0005956939999305177
+    },
+    "after_persisted": {
+      "open_median_seconds": 0.02356990000407677,
+      "first_query_median_seconds": 0.0011610999936237931,
+      "warm_query_median_seconds": 0.0006806489999871701
+    }
+  },
+  "plan": "[('analyzed_plan', \"╭─ Summary ───────────╮\\n│ Total Time: 0.0006s │\\n╰─────────────────────╯\\n╭─ Ungrouped Aggregate ─────────────╮\\n│ Aggregates: count_star()          │\\n│ 1 row                         0µs │\\n╰─────────────────┒┎────────────────╯\\n╭─ Table Scan ────┚┖────────────────╮\\n│ Table: comparison.main.comparison │\\n│ Type: Index Scan                  │\\n│ Filters: APP_ID = 'I32554354'     │\\n│ Row Groups Scanned: 0 / 3         │\\n│ 141 rows                      0µs │\\n╰───────────────────────────────────╯\\n\")]"
+}

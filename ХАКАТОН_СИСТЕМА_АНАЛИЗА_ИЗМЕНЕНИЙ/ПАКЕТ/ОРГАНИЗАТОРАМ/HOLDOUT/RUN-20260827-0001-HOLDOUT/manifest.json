@@ -1,0 +1,26 @@
+{
+  "run_id": "RUN-20260827-0001-HOLDOUT",
+  "applications": 998,
+  "srez": {
+    "BEFORE": {
+      "label": "MASTER",
+      "dir": "RESULTS/BEFORE_MASTER"
+    },
+    "AFTER": {
+      "label": "BETA",
+      "dir": "RESULTS/AFTER_BETA"
+    }
+  },
+  "technical_fields_always_differ": [
+    "appData.request_id",
+    "appData.createDateTime"
+  ],
+  "changed_applications": 248,
+  "decision_changed_applications": 186,
+  "scenarios": {
+    "IDENTICAL": 750,
+    "NEW_SCORECARD": 83,
+    "OKB_SCORE_CHAIN": 83,
+    "STOP_FACTORS": 82
+  }
+}

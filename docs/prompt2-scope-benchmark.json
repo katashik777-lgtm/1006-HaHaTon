@@ -1,0 +1,588 @@
+{
+  "files": 4004,
+  "bytes": 21044230,
+  "conditions": "Darwin arm64, Python 3.14.8, sequential runs with no OS cache flush, read_workers=1, 3 imports per version and 7 queries per import. Both versions use the current profile and the same bundled checks.",
+  "baseline": "Copy of the received workspace before this continuation",
+  "runs": {
+    "before": [
+      {
+        "summary": {
+          "discovered": 2002,
+          "valid_before": 2002,
+          "valid_after": 2002,
+          "valid_pairs": 2002,
+          "excluded": 0,
+          "changed_apps": 502,
+          "decision_changed": 385,
+          "attributes": 289533,
+          "changes": 14412,
+          "normalized_rows": 572221,
+          "files": 4004,
+          "quality": {
+            "parsed": 4004,
+            "missing": 0,
+            "parse_error": 0,
+            "schema_error": 0,
+            "id_conflict": 0,
+            "duplicate": 0
+          }
+        },
+        "timing": {
+          "read": 1.6022823841776699,
+          "parse": 0.46424900530837476,
+          "normalize": 9.113622710807249,
+          "read_parse_normalize": 13.221585500054061,
+          "union": 0.002572875004261732,
+          "comparison": 0.6322905840352178,
+          "segments": 0.2774714168626815,
+          "aggregations": 0.6047452921047807,
+          "parquet": 1.1555289172101766,
+          "indexes": 1.4343583330046386,
+          "checks": 4.270228416891769,
+          "total": 21.767991041997448
+        },
+        "reader": [
+          {
+            "report": 0.2257890000473708,
+            "reader": 0.048410457791760564,
+            "pivot_first": 0.02067316696047783,
+            "pivot_repeat": 0.023119250079616904
+          },
+          {
+            "report": 0.2198339169844985,
+            "reader": 0.05172037519514561,
+            "pivot_first": 0.026297291973605752,
+            "pivot_repeat": 0.023804000113159418
+          },
+          {
+            "report": 0.21388250007294118,
+            "reader": 0.04438162501901388,
+            "pivot_first": 0.028800541069358587,
+            "pivot_repeat": 0.028427459066733718
+          },
+          {
+            "report": 0.21894724993035197,
+            "reader": 0.04942979197949171,
+            "pivot_first": 0.02656287490390241,
+            "pivot_repeat": 0.023452708963304758
+          },
+          {
+            "report": 0.22540837503038347,
+            "reader": 0.04355358309112489,
+            "pivot_first": 0.02066354197449982,
+            "pivot_repeat": 0.027927916031330824
+          },
+          {
+            "report": 0.20387670793570578,
+            "reader": 0.04798333300277591,
+            "pivot_first": 0.017278082901611924,
+            "pivot_repeat": 0.023894541896879673
+          },
+          {
+            "report": 0.2114693750627339,
+            "reader": 0.04704512492753565,
+            "pivot_first": 0.022236833116039634,
+            "pivot_repeat": 0.022132874932140112
+          }
+        ]
+      },
+      {
+        "summary": {
+          "discovered": 2002,
+          "valid_before": 2002,
+          "valid_after": 2002,
+          "valid_pairs": 2002,
+          "excluded": 0,
+          "changed_apps": 502,
+          "decision_changed": 385,
+          "attributes": 289533,
+          "changes": 14412,
+          "normalized_rows": 572221,
+          "files": 4004,
+          "quality": {
+            "parsed": 4004,
+            "missing": 0,
+            "parse_error": 0,
+            "schema_error": 0,
+            "id_conflict": 0,
+            "duplicate": 0
+          }
+        },
+        "timing": {
+          "read": 0.2839988898485899,
+          "parse": 0.06461178651079535,
+          "normalize": 2.0209597169887275,
+          "read_parse_normalize": 2.805998333962634,
+          "union": 0.0007592090405523777,
+          "comparison": 0.14066520798951387,
+          "segments": 0.0592334580142051,
+          "aggregations": 0.1067609169986099,
+          "parquet": 0.2522563331294805,
+          "indexes": 0.3912126668728888,
+          "checks": 0.9946610000915825,
+          "total": 4.765609292080626
+        },
+        "reader": [
+          {
+            "report": 0.050576332956552505,
+            "reader": 0.01273204106837511,
+            "pivot_first": 0.006958500016480684,
+            "pivot_repeat": 0.00633025006391108
+          },
+          {
+            "report": 0.05072675016708672,
+            "reader": 0.012135999975726008,
+            "pivot_first": 0.006960500031709671,
+            "pivot_repeat": 0.005804667016491294
+          },
+          {
+            "report": 0.05150491581298411,
+            "reader": 0.012161040911450982,
+            "pivot_first": 0.007548584137111902,
+            "pivot_repeat": 0.006396540906280279
+          },
+          {
+            "report": 0.05092758289538324,
+            "reader": 0.0125472501385957,
+            "pivot_first": 0.005555292125791311,
+            "pivot_repeat": 0.006471541011705995
+          },
+          {
+            "report": 0.05065983301028609,
+            "reader": 0.012273457832634449,
+            "pivot_first": 0.006510833045467734,
+            "pivot_repeat": 0.0060077079106122255
+          },
+          {
+            "report": 0.050203791819512844,
+            "reader": 0.012007915880531073,
+            "pivot_first": 0.005426166811957955,
+            "pivot_repeat": 0.006134625058621168
+          },
+          {
+            "report": 0.05223837494850159,
+            "reader": 0.012597874971106648,
+            "pivot_first": 0.0065842499025166035,
+            "pivot_repeat": 0.007308667059987783
+          }
+        ]
+      },
+      {
+        "summary": {
+          "discovered": 2002,
+          "valid_before": 2002,
+          "valid_after": 2002,
+          "valid_pairs": 2002,
+          "excluded": 0,
+          "changed_apps": 502,
+          "decision_changed": 385,
+          "attributes": 289533,
+          "changes": 14412,
+          "normalized_rows": 572221,
+          "files": 4004,
+          "quality": {
+            "parsed": 4004,
+            "missing": 0,
+            "parse_error": 0,
+            "schema_error": 0,
+            "id_conflict": 0,
+            "duplicate": 0
+          }
+        },
+        "timing": {
+          "read": 0.08342778240330517,
+          "parse": 0.048721159575507045,
+          "normalize": 1.8164921831339598,
+          "read_parse_normalize": 2.3567236671224236,
+          "union": 0.0008148329798132181,
+          "comparison": 0.1231549580115825,
+          "segments": 0.058347417041659355,
+          "aggregations": 0.08664229209534824,
+          "parquet": 0.2379410827998072,
+          "indexes": 0.36335616698488593,
+          "checks": 0.9724740840028971,
+          "total": 4.2115999578963965
+        },
+        "reader": [
+          {
+            "report": 0.04923512483946979,
+            "reader": 0.012551791965961456,
+            "pivot_first": 0.00609499984420836,
+            "pivot_repeat": 0.005373416002839804
+          },
+          {
+            "report": 0.04930616612546146,
+            "reader": 0.011803916888311505,
+            "pivot_first": 0.005755832884460688,
+            "pivot_repeat": 0.00547341606579721
+          },
+          {
+            "report": 0.04994545807130635,
+            "reader": 0.012102375039830804,
+            "pivot_first": 0.005373707972466946,
+            "pivot_repeat": 0.005667333025485277
+          },
+          {
+            "report": 0.0490663331001997,
+            "reader": 0.011698791990056634,
+            "pivot_first": 0.0057373750023543835,
+            "pivot_repeat": 0.005830375012010336
+          },
+          {
+            "report": 0.04942595912143588,
+            "reader": 0.012225084006786346,
+            "pivot_first": 0.005817499943077564,
+            "pivot_repeat": 0.005523375002667308
+          },
+          {
+            "report": 0.04883099999278784,
+            "reader": 0.011966707883402705,
+            "pivot_first": 0.0056291669607162476,
+            "pivot_repeat": 0.005652083083987236
+          },
+          {
+            "report": 0.051933791022747755,
+            "reader": 0.012273458065465093,
+            "pivot_first": 0.005424541886895895,
+            "pivot_repeat": 0.005989749915897846
+          }
+        ]
+      }
+    ],
+    "after": [
+      {
+        "summary": {
+          "discovered": 2002,
+          "valid_before": 2002,
+          "valid_after": 2002,
+          "valid_pairs": 2002,
+          "excluded": 0,
+          "changed_apps": 502,
+          "decision_changed": 385,
+          "attributes": 289533,
+          "changes": 14412,
+          "normalized_rows": 572221,
+          "files": 4004,
+          "quality": {
+            "parsed": 4004,
+            "missing": 0,
+            "parse_error": 0,
+            "schema_error": 0,
+            "id_conflict": 0,
+            "duplicate": 0
+          }
+        },
+        "timing": {
+          "read": 1.4136000405997038,
+          "parse": 0.3995313395280391,
+          "normalize": 9.629627801245078,
+          "read_parse_normalize": 13.493683458073065,
+          "union": 0.000849457923322916,
+          "comparison": 0.13436525012366474,
+          "segments": 0.06420404207892716,
+          "aggregations": 0.09951941692270339,
+          "parquet": 0.4189060421194881,
+          "indexes": 0.4749455419369042,
+          "checks": 1.0145914999302477,
+          "total": 15.718526541953906
+        },
+        "reader": [
+          {
+            "report": 0.049049583030864596,
+            "reader": 0.012678583851084113,
+            "pivot_first": 0.006319333100691438,
+            "pivot_repeat": 0.0053619579412043095,
+            "scenario_pivot": 0.15711824991740286,
+            "scenario_report": 0.25251354090869427
+          },
+          {
+            "report": 0.048872125102207065,
+            "reader": 0.012620541034266353,
+            "pivot_first": 0.005652040941640735,
+            "pivot_repeat": 0.005196666112169623,
+            "scenario_pivot": 0.1360339589882642,
+            "scenario_report": 0.2758472498971969
+          },
+          {
+            "report": 0.04788762493990362,
+            "reader": 0.012202125042676926,
+            "pivot_first": 0.005937250098213553,
+            "pivot_repeat": 0.005134750157594681,
+            "scenario_pivot": 0.13618941698223352,
+            "scenario_report": 0.2510018339380622
+          },
+          {
+            "report": 0.04961979202926159,
+            "reader": 0.011973249958828092,
+            "pivot_first": 0.005736625054851174,
+            "pivot_repeat": 0.005879958858713508,
+            "scenario_pivot": 0.1386602909769863,
+            "scenario_report": 0.6130433750804514
+          },
+          {
+            "report": 0.049219375010579824,
+            "reader": 0.01164462510496378,
+            "pivot_first": 0.005960833048447967,
+            "pivot_repeat": 0.0058576250448822975,
+            "scenario_pivot": 0.1785049580503255,
+            "scenario_report": 0.26661312486976385
+          },
+          {
+            "report": 0.04836016707122326,
+            "reader": 0.011764958035200834,
+            "pivot_first": 0.006057000020518899,
+            "pivot_repeat": 0.004896916914731264,
+            "scenario_pivot": 0.2206208750139922,
+            "scenario_report": 0.25407816586084664
+          },
+          {
+            "report": 0.048544958932325244,
+            "reader": 0.012630207929760218,
+            "pivot_first": 0.006237666821107268,
+            "pivot_repeat": 0.005818499950692058,
+            "scenario_pivot": 0.14134524995461106,
+            "scenario_report": 0.3557181251235306
+          }
+        ]
+      },
+      {
+        "summary": {
+          "discovered": 2002,
+          "valid_before": 2002,
+          "valid_after": 2002,
+          "valid_pairs": 2002,
+          "excluded": 0,
+          "changed_apps": 502,
+          "decision_changed": 385,
+          "attributes": 289533,
+          "changes": 14412,
+          "normalized_rows": 572221,
+          "files": 4004,
+          "quality": {
+            "parsed": 4004,
+            "missing": 0,
+            "parse_error": 0,
+            "schema_error": 0,
+            "id_conflict": 0,
+            "duplicate": 0
+          }
+        },
+        "timing": {
+          "read": 0.08689850335940719,
+          "parse": 0.04733798000961542,
+          "normalize": 2.0037678540684283,
+          "read_parse_normalize": 2.558045750018209,
+          "union": 0.0006991669069975615,
+          "comparison": 0.11873195809312165,
+          "segments": 0.057338833110406995,
+          "aggregations": 0.08793604210950434,
+          "parquet": 0.2372162921819836,
+          "indexes": 0.3628515829332173,
+          "checks": 1.0015130420215428,
+          "total": 4.438084207940847
+        },
+        "reader": [
+          {
+            "report": 0.0497274158988148,
+            "reader": 0.012351332930848002,
+            "pivot_first": 0.005690707825124264,
+            "pivot_repeat": 0.005427459022030234,
+            "scenario_pivot": 0.15509949997067451,
+            "scenario_report": 0.26133737503550947
+          },
+          {
+            "report": 0.04918587510474026,
+            "reader": 0.012045666808262467,
+            "pivot_first": 0.006515625165775418,
+            "pivot_repeat": 0.005168375093489885,
+            "scenario_pivot": 0.14452262502163649,
+            "scenario_report": 0.29775512497872114
+          },
+          {
+            "report": 0.04901158297434449,
+            "reader": 0.012230749940499663,
+            "pivot_first": 0.006830166094005108,
+            "pivot_repeat": 0.005432708188891411,
+            "scenario_pivot": 0.1441215828526765,
+            "scenario_report": 0.26985929207876325
+          },
+          {
+            "report": 0.049587042070925236,
+            "reader": 0.013015166856348515,
+            "pivot_first": 0.006087333895266056,
+            "pivot_repeat": 0.00651374994777143,
+            "scenario_pivot": 0.15033179195597768,
+            "scenario_report": 0.2873508329503238
+          },
+          {
+            "report": 0.05070654209703207,
+            "reader": 0.011784541187807918,
+            "pivot_first": 0.006596167106181383,
+            "pivot_repeat": 0.006175582995638251,
+            "scenario_pivot": 0.14413179107941687,
+            "scenario_report": 0.2585866248700768
+          },
+          {
+            "report": 0.049265250097960234,
+            "reader": 0.012242374941706657,
+            "pivot_first": 0.005899959011003375,
+            "pivot_repeat": 0.005512042203918099,
+            "scenario_pivot": 0.15888229105621576,
+            "scenario_report": 0.2600801249500364
+          },
+          {
+            "report": 0.04936654190532863,
+            "reader": 0.011848167050629854,
+            "pivot_first": 0.005917416187003255,
+            "pivot_repeat": 0.00535220792517066,
+            "scenario_pivot": 0.13888633297756314,
+            "scenario_report": 0.27867374988272786
+          }
+        ]
+      },
+      {
+        "summary": {
+          "discovered": 2002,
+          "valid_before": 2002,
+          "valid_after": 2002,
+          "valid_pairs": 2002,
+          "excluded": 0,
+          "changed_apps": 502,
+          "decision_changed": 385,
+          "attributes": 289533,
+          "changes": 14412,
+          "normalized_rows": 572221,
+          "files": 4004,
+          "quality": {
+            "parsed": 4004,
+            "missing": 0,
+            "parse_error": 0,
+            "schema_error": 0,
+            "id_conflict": 0,
+            "duplicate": 0
+          }
+        },
+        "timing": {
+          "read": 0.08448491897433996,
+          "parse": 0.04648120328783989,
+          "normalize": 1.9868265332188457,
+          "read_parse_normalize": 2.530253625009209,
+          "union": 0.0007886660750955343,
+          "comparison": 0.12221574992872775,
+          "segments": 0.05750083294697106,
+          "aggregations": 0.08891200018115342,
+          "parquet": 0.23691025003790855,
+          "indexes": 0.36364175006747246,
+          "checks": 0.9919015830382705,
+          "total": 4.403937333961949
+        },
+        "reader": [
+          {
+            "report": 0.04906612494960427,
+            "reader": 0.012354208156466484,
+            "pivot_first": 0.006171040935441852,
+            "pivot_repeat": 0.005797542165964842,
+            "scenario_pivot": 0.1570386670064181,
+            "scenario_report": 0.26259391591884196
+          },
+          {
+            "report": 0.04909316613338888,
+            "reader": 0.011997542111203074,
+            "pivot_first": 0.005719417007640004,
+            "pivot_repeat": 0.0059434170834720135,
+            "scenario_pivot": 0.14001333294436336,
+            "scenario_report": 0.2817727499641478
+          },
+          {
+            "report": 0.04901020787656307,
+            "reader": 0.012292042141780257,
+            "pivot_first": 0.005332084139809012,
+            "pivot_repeat": 0.005877916933968663,
+            "scenario_pivot": 0.14853112492710352,
+            "scenario_report": 0.2560796248726547
+          },
+          {
+            "report": 0.04899275000207126,
+            "reader": 0.012091292068362236,
+            "pivot_first": 0.005469084018841386,
+            "pivot_repeat": 0.005315917078405619,
+            "scenario_pivot": 0.13739466690458357,
+            "scenario_report": 0.2758055829908699
+          },
+          {
+            "report": 0.04874891694635153,
+            "reader": 0.012049375101923943,
+            "pivot_first": 0.0059414999559521675,
+            "pivot_repeat": 0.005279625067487359,
+            "scenario_pivot": 0.13887366699054837,
+            "scenario_report": 0.2536208329256624
+          },
+          {
+            "report": 0.047844958025962114,
+            "reader": 0.011793458135798573,
+            "pivot_first": 0.005604749778285623,
+            "pivot_repeat": 0.005353874992579222,
+            "scenario_pivot": 0.15861270809546113,
+            "scenario_report": 0.25793779199011624
+          },
+          {
+            "report": 0.04814108298160136,
+            "reader": 0.012057374930009246,
+            "pivot_first": 0.005991417216137052,
+            "pivot_repeat": 0.00468695885501802,
+            "scenario_pivot": 0.19610241590999067,
+            "scenario_report": 0.3743452918715775
+          }
+        ]
+      }
+    ]
+  },
+  "medians": {
+    "before": {
+      "import": {
+        "read": 0.2839988898485899,
+        "parse": 0.06461178651079535,
+        "normalize": 2.0209597169887275,
+        "read_parse_normalize": 2.805998333962634,
+        "union": 0.0008148329798132181,
+        "comparison": 0.14066520798951387,
+        "segments": 0.0592334580142051,
+        "aggregations": 0.1067609169986099,
+        "parquet": 0.2522563331294805,
+        "indexes": 0.3912126668728888,
+        "checks": 0.9946610000915825,
+        "total": 4.765609292080626
+      },
+      "reader": {
+        "report": 0.05092758289538324,
+        "reader": 0.0125472501385957,
+        "pivot_first": 0.0065842499025166035,
+        "pivot_repeat": 0.00633025006391108
+      }
+    },
+    "after": {
+      "import": {
+        "read": 0.08689850335940719,
+        "parse": 0.04733798000961542,
+        "normalize": 2.0037678540684283,
+        "read_parse_normalize": 2.558045750018209,
+        "union": 0.0007886660750955343,
+        "comparison": 0.12221574992872775,
+        "segments": 0.05750083294697106,
+        "aggregations": 0.08891200018115342,
+        "parquet": 0.2372162921819836,
+        "indexes": 0.36364175006747246,
+        "checks": 1.0015130420215428,
+        "total": 4.438084207940847
+      },
+      "reader": {
+        "report": 0.049049583030864596,
+        "reader": 0.012091292068362236,
+        "pivot_first": 0.0059414999559521675,
+        "pivot_repeat": 0.005427459022030234,
+        "scenario_pivot": 0.14452262502163649,
+        "scenario_report": 0.26661312486976385
+      }
+    }
+  }
+}

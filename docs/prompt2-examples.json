@@ -1,0 +1,59 @@
+{
+  "BUCKET_DISTRIBUTION": {
+    "REPORT_VERSION": 2,
+    "LABEL": "BUCKET_DISTRIBUTION",
+    "PATH": "decisionResult.product_trials.scoring.pd.modelName",
+    "SOURCE": "AFTER",
+    "ARGUMENT": "decisionResult.product_trials.scoring.pd.modelName · ML_MICRO_LOAN_V1",
+    "CNT": 3900,
+    "TOTAL": 4688,
+    "METRIC": 0.8319112627986348,
+    "APP_IDS": [
+      "I32554354",
+      "I32554355",
+      "I32554356",
+      "I32554359",
+      "I32554360"
+    ],
+    "RESULT": "INFO",
+    "CONFIDENCE": "HIGH",
+    "BUCKET": "ML_MICRO_LOAN_V1",
+    "BUCKET_KEY": "[\"str\",\"ML_MICRO_LOAN_V1\"]",
+    "APP_IDS_PREVIEW_ONLY": true
+  },
+  "BUCKET_TRANSITION": {
+    "REPORT_VERSION": 2,
+    "LABEL": "BUCKET_TRANSITION",
+    "PATH": "decisionResult.product_trials.scoring.pd.modelName",
+    "SOURCE": "AFTER",
+    "ARGUMENT": "decisionResult.product_trials.scoring.pd.modelName · ML_MICRO_LOAN_V1 → ML_MICRO_LOAN_V3",
+    "CNT": 396,
+    "TOTAL": 4688,
+    "METRIC": 0.08447098976109214,
+    "APP_IDS": [
+      "I32554358",
+      "I32554370",
+      "I32554394",
+      "I32554406",
+      "I32554430"
+    ],
+    "RESULT": "INFO",
+    "CONFIDENCE": "HIGH",
+    "BUCKET_BEFORE": "ML_MICRO_LOAN_V1",
+    "BUCKET_AFTER": "ML_MICRO_LOAN_V3",
+    "BUCKET_KEY_BEFORE": "[\"str\",\"ML_MICRO_LOAN_V1\"]",
+    "BUCKET_KEY_AFTER": "[\"str\",\"ML_MICRO_LOAN_V3\"]",
+    "APP_IDS_PREVIEW_ONLY": true
+  },
+  "near_threshold": [
+    {
+      "APP_ID": "I32554354",
+      "PRODUCT": "15210",
+      "SOURCE": "BEFORE",
+      "SCORE": 0.637,
+      "CUTOFF": 0.55,
+      "DECISION": "REJECT",
+      "STOP_COUNT": 1
+    }
+  ]
+}
