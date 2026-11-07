@@ -1,6 +1,7 @@
 """Run the full open dataset and compare the exact set of affected applications."""
 import argparse
 import csv
+import hashlib
 import json
 import os
 import platform
@@ -17,6 +18,10 @@ from spr.analytics import Mart
 from spr.config import MATERIALS, ROOT
 from spr.pipeline import process
 from spr.sources import documents, unique_files
+
+
+def fingerprint(app_ids):
+    return hashlib.sha256(('\n'.join(sorted(app_ids)) + '\n').encode('utf-8')).hexdigest()
 
 
 def measure_readers(target):
@@ -39,6 +44,7 @@ def measure_readers(target):
 def main():
     parser = argparse.ArgumentParser(description='Полная проверка открытого набора по эталону')
     parser.add_argument('--output', type=Path, help='Дополнительный путь для JSON-отчёта')
+    parser.add_argument('--reference', type=Path, help='Исходный expected_OPEN.csv для прямой сверки ID')
     args = parser.parse_args()
 
     source = MATERIALS / 'data/RUN-20260827-0001'
@@ -53,14 +59,21 @@ def main():
     profile = json.loads((ROOT / 'profiles/main.json').read_text(encoding='utf-8'))
     summary = process(files, profile, target, checks=checks)
 
-    reference = next(ROOT.glob('ХАК*/ПАКЕТ/ОРГАНИЗАТОРАМ/ЭТАЛОН/expected_OPEN.csv'))
-    with reference.open(encoding='utf-8-sig', newline='') as stream:
-        expected = {row['APP_ID']: row['CHANGED'] for row in csv.DictReader(stream, delimiter=';')}
-    wanted = {ident for ident, changed in expected.items() if changed == '1'}
+    reference = json.loads((ROOT / 'tests/fixtures/open-reference.json').read_bytes())
+    assert reference['dataset'] == source.name
     with Mart(target) as mart:
         actual = set(mart.app_ids(diff_flag=1))
-        assert actual == wanted, {'false_positive': sorted(actual - wanted), 'false_negative': sorted(wanted - actual)}
-        assert summary['valid_pairs'] == len(expected) == 2002 and summary['files'] == 4004, summary
+        actual_fingerprint = fingerprint(actual)
+        if args.reference:
+            with args.reference.open(encoding='utf-8-sig', newline='') as stream:
+                expected = {row['APP_ID']: row['CHANGED'] for row in csv.DictReader(stream, delimiter=';')}
+            wanted = {ident for ident, changed in expected.items() if changed == '1'}
+            assert len(expected) == reference['valid_pairs'], 'Число заявок в CSV отличается от открытого эталона'
+            assert actual == wanted, {'false_positive': sorted(actual - wanted), 'false_negative': sorted(wanted - actual)}
+        assert len(actual) == reference['changed_apps'] and actual_fingerprint == reference['changed_ids_sha256'], {
+            'changed_apps': len(actual), 'changed_ids_sha256': actual_fingerprint, 'reference': reference,
+        }
+        assert summary['valid_pairs'] == reference['valid_pairs'] == 2002 and summary['files'] == 4004, summary
         kinds = dict(mart.con.execute('SELECT CHANGE_TYPE, count(*) FROM comparison GROUP BY 1').fetchall())
         assert set(kinds) == {'SAME', 'VALUE_CHANGED', 'ATTRIBUTE_NEW', 'ATTRIBUTE_LOST'}, kinds
         pivot_rows = mart.pivot(['PRODUCT', 'SOURCE', 'DIFF_FLAG'], {}, 10000)
@@ -74,8 +87,9 @@ def main():
     report = {
         'dataset': source.name,
         'summary': summary,
-        'reference': {'changed_apps': len(wanted), 'false_positive': len(actual - wanted),
-                      'false_negative': len(wanted - actual)},
+        'reference': {'changed_apps': reference['changed_apps'], 'changed_ids_sha256': actual_fingerprint,
+                      'method': 'direct_ids_and_sha256' if args.reference else 'sha256_sorted_app_ids',
+                      'false_positive': 0, 'false_negative': 0},
         'reference_ids_match': True,
         'change_types': kinds,
         'checks_selected': len(checks),

@@ -25,6 +25,8 @@
   },
   "reference": {
     "changed_apps": 502,
+    "changed_ids_sha256": "ef64dd6a3f0999a102199115d15592961dcbe9712212eca70f4a0c4294936ddf",
+    "method": "direct_ids_and_sha256",
     "false_positive": 0,
     "false_negative": 0
   },
@@ -44,18 +46,18 @@
   "check_errors": 0,
   "pivot_groups_verified": 20,
   "timings_seconds": {
-    "read": 0.37551761232316494,
-    "parse": 0.04664536518976092,
-    "normalize": 1.9013512590900064,
-    "read_parse_normalize": 2.740217042155564,
-    "union": 0.0033211251720786095,
-    "segments": 0.056904542027041316,
-    "parquet": 0.1637554168701172,
-    "comparison": 0.1355762081220746,
-    "aggregations": 0.07602358306758106,
-    "indexes": 0.42359216697514057,
-    "checks": 1.008837959030643,
-    "total": 4.635488792089745
+    "read": 0.41210398566909134,
+    "parse": 0.06062495592050254,
+    "normalize": 2.153948734048754,
+    "read_parse_normalize": 3.090591666987166,
+    "union": 0.0007333329413086176,
+    "segments": 0.06135291699320078,
+    "parquet": 0.1629192908294499,
+    "comparison": 0.10291966609656811,
+    "aggregations": 0.0856308329384774,
+    "indexes": 0.38908925000578165,
+    "checks": 1.409033166943118,
+    "total": 5.330042708897963
   },
   "environment": {
     "platform": "macOS-15.8.1-arm64-arm-64bit-Mach-O",
@@ -64,15 +66,15 @@
   "reader_timings": {
     "samples": 20,
     "pivot_open_and_query_ms": {
-      "median": 17.75,
-      "p95": 18.65
+      "median": 20.77,
+      "p95": 30.64
     },
     "drill_query_ms": {
-      "median": 6.88,
-      "p95": 8.27
+      "median": 9.02,
+      "p95": 15.08
     }
   },
-  "artifacts": "tmp/acceptance-qy7g1k2w",
+  "artifacts": "tmp/acceptance-of21odxc",
   "check_results": [
     {
       "LABEL": "Approval Rate по продукту упал",

@@ -27,3 +27,9 @@ tmp/
 
 # Private local configuration
 /.local/
+.env
+.env.*
+!.env.example
+
+# Materials reserved for organizers
+**/ПАКЕТ/ОРГАНИЗАТОРАМ/
