@@ -14,6 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description='Скорифай: одинаковый локальный запуск на всех ОС')
     parser.add_argument('command', choices=['install', 'start', 'reset-login', 'test'])
     parser.add_argument('--host', default='127.0.0.1')
+    parser.add_argument('--port', type=int, default=8765, help='Порт локального приложения')
     parser.add_argument('--local-demo', action='store_true', help='Загрузить открытый учебный набор при установке')
     args = parser.parse_args()
     if not (3, 12) <= sys.version_info[:2] <= (3, 14):
@@ -42,17 +43,21 @@ def main():
         env.pop('SPR_TRUSTED_LOCAL_CODE', None)
         run('-m', 'pytest', '-q')
     else:
+        if not 1 <= args.port <= 65535:
+            parser.error('Укажите порт от 1 до 65535.')
+        url = f'http://localhost:{args.port}'
         with socket.socket() as probe:
             # POSIX leaves closed connections in TIME_WAIT after a normal stop.
             if os.name != 'nt':probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             try:
-                probe.bind((args.host, 8765))
+                probe.bind((args.host, args.port))
             except OSError:
-                parser.error('Порт 8765 занят. Возможно, приложение уже запущено: http://localhost:8765')
+                parser.error(f'Не удалось открыть порт {args.port}. Проверьте {url} или выберите другой порт через --port.')
         run('-m', 'spr.cli', 'local-init')
-        print('http://localhost:8765 — доверенный локальный Python, без песочницы ОС', flush=True)
+        env.setdefault('BASE_URL', f'http://127.0.0.1:{args.port}')
+        print(f'{url} — доверенный локальный Python, без песочницы ОС', flush=True)
         try:
-            run('-m', 'spr.cli', 'serve', '--host', args.host)
+            run('-m', 'spr.cli', 'serve', '--host', args.host, '--port', str(args.port))
         except KeyboardInterrupt:
             pass
 

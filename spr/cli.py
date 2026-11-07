@@ -43,7 +43,9 @@ def import_dir(project,path,name='Открытый набор · 2002 заявк
  return dataset
 
 def main():
- parser=argparse.ArgumentParser();parser.add_argument('command',choices=['init','local-init','local-reset','demo','serve','password','worker','backup','restore']);parser.add_argument('argument',nargs='?');parser.add_argument('--password-stdin',action='store_true');parser.add_argument('--if-available',action='store_true');parser.add_argument('--host',default='127.0.0.1');args=parser.parse_args()
+ parser=argparse.ArgumentParser();parser.add_argument('command',choices=['init','local-init','local-reset','demo','serve','password','worker','backup','restore']);parser.add_argument('argument',nargs='?');parser.add_argument('--password-stdin',action='store_true');parser.add_argument('--if-available',action='store_true');parser.add_argument('--host',default='127.0.0.1')
+ parser.add_argument('--port',type=int,default=8765)
+ args=parser.parse_args()
  if args.command=='local-init':
   init('admin',sync_admin_password=True)
   return
@@ -78,7 +80,7 @@ def main():
    s.execute(delete(Login).where(Login.user_id==u.id))
   print('Пароль обновлён; предыдущие сеансы завершены.')
  elif args.command=='serve':
-  children=[subprocess.Popen([sys.executable,'-m','spr.worker']),subprocess.Popen([sys.executable,'-m','uvicorn','spr.api:app','--host',args.host,'--port','8765'])]
+  children=[subprocess.Popen([sys.executable,'-m','spr.worker']),subprocess.Popen([sys.executable,'-m','uvicorn','spr.api:app','--host',args.host,'--port',str(args.port)])]
   try:
    while all(c.poll() is None for c in children):time.sleep(1)
   except KeyboardInterrupt:pass
