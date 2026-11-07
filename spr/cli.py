@@ -35,7 +35,7 @@ def import_dir(project,path,name='Открытый набор · 2002 заявк
  return dataset
 
 def main():
- parser=argparse.ArgumentParser();parser.add_argument('command',choices=['init','local-reset','demo','serve','password','worker','backup','restore']);parser.add_argument('argument',nargs='?');parser.add_argument('--password-stdin',action='store_true');parser.add_argument('--host',default='127.0.0.1');args=parser.parse_args()
+ parser=argparse.ArgumentParser();parser.add_argument('command',choices=['init','local-reset','demo','serve','password','worker','backup','restore']);parser.add_argument('argument',nargs='?');parser.add_argument('--password-stdin',action='store_true');parser.add_argument('--if-available',action='store_true');parser.add_argument('--host',default='127.0.0.1');args=parser.parse_args()
  if args.command=='local-reset':
   import secrets
   from .db import Login,Audit
@@ -50,11 +50,18 @@ def main():
   return
  if args.command=='init':print('Проект:',init(sys.stdin.readline().rstrip('\n') if args.password_stdin else None))
  elif args.command=='demo':
-  with Session() as s:project=s.execute(select(Record.id).where(Record.kind=='project')).scalar();ds=s.execute(select(Record.id).where(Record.kind=='dataset')).scalar()
-  if not project:parser.error('Сначала выполните init или local-reset')
+  with Session() as s:
+   project=s.scalars(select(Record.id).where(Record.kind=='project').order_by(Record.created).limit(1)).first()
+   if not project:parser.error('Сначала выполните init или local-reset')
+   ds=s.scalars(select(Record.id).where(Record.kind=='dataset',Record.project==project).order_by(Record.created).limit(1)).first()
   if not ds:
-   if not MATERIALS:parser.error('Учебный набор не найден')
-   ds=import_dir(project,MATERIALS/'data/RUN-20260827-0001')
+   source=MATERIALS/'data/RUN-20260827-0001' if MATERIALS else None
+   if source is None or not (source/'manifest.json').is_file():
+    if args.if_available:
+     print('Учебный набор отсутствует. Загрузите свои файлы в разделе «Данные и профили».')
+     return
+    parser.error('Учебный набор не найден')
+   ds=import_dir(project,source)
   print('Датасет:',ds)
  elif args.command=='password':
   value=sys.stdin.readline().rstrip('\n') if args.password_stdin else getpass.getpass('Новый пароль (12+ символов): ')

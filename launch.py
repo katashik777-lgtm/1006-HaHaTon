@@ -29,6 +29,8 @@ def main():
             venv.EnvBuilder(with_pip=True).create(ROOT / '.venv')
         run('-m', 'pip', 'install', '-r', 'requirements.txt')
         run('-m', 'spr.cli', 'local-reset' if args.local_demo else 'init')
+        if args.local_demo:
+            run('-m', 'spr.cli', 'demo', '--if-available')
         print('Установлено. Запуск: python launch.py start')
         return
     if not python.exists():

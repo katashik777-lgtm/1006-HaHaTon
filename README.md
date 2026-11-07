@@ -13,7 +13,6 @@ python launch.py install --local-demo
 После установки на Windows выполните:
 
 ```text
-.venv\Scripts\python -m spr.cli demo
 python launch.py start
 ```
 
@@ -21,11 +20,10 @@ python launch.py start
 
 ```text
 python3 launch.py install --local-demo
-.venv/bin/python -m spr.cli demo
 python3 launch.py start
 ```
 
-Откройте http://127.0.0.1:8765. Демонстрационный вход: admin / admin. Для собственного пароля устанавливайте без --local-demo. install --local-demo явно сбрасывает демонстрационный пароль. Остановка — Ctrl+C.
+Откройте http://127.0.0.1:8765. Демонстрационный вход: admin / admin. Для собственного пароля устанавливайте без --local-demo. Установка с `--local-demo` загружает комплектный открытый набор, если проект ещё не содержит датасетов, и сбрасывает демонстрационный пароль. Если приложение уже установлено, загрузите открытый набор командой `.venv/bin/python -m spr.cli demo` (Windows: `.venv\Scripts\python -m spr.cli demo`). Остановка — Ctrl+C.
 
 launch.py start применяет миграции и запускает API и worker. Он включает доверенное локальное исполнение пользовательского Python, необходимое для notebook: код имеет права текущего пользователя. Это режим для доверенных участников. Изолированные отдельные процедуры доступны через прямой spr.cli serve на Linux с bubblewrap и macOS с Seatbelt; notebook в таком режиме отключён. Windows использует доверенный локальный режим.
 
