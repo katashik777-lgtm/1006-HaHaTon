@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description='Скорифай: одинаковый локальный запуск на всех ОС')
     parser.add_argument('command', choices=['install', 'start', 'reset-login', 'test'])
     parser.add_argument('--host', default='127.0.0.1')
-    parser.add_argument('--local-demo', action='store_true', help='При установке создать локальный вход admin/admin')
+    parser.add_argument('--local-demo', action='store_true', help='Загрузить открытый учебный набор при установке')
     args = parser.parse_args()
     if not (3, 12) <= sys.version_info[:2] <= (3, 14):
         parser.error('Используйте Python 3.12, 3.13 или 3.14.')
@@ -28,7 +28,7 @@ def main():
         if not python.exists():
             venv.EnvBuilder(with_pip=True).create(ROOT / '.venv')
         run('-m', 'pip', 'install', '-r', 'requirements.txt')
-        run('-m', 'spr.cli', 'local-reset' if args.local_demo else 'init')
+        run('-m', 'spr.cli', 'local-init')
         if args.local_demo:
             run('-m', 'spr.cli', 'demo', '--if-available')
         print('Установлено. Запуск: python launch.py start')
@@ -49,7 +49,7 @@ def main():
                 probe.bind((args.host, 8765))
             except OSError:
                 parser.error('Порт 8765 занят. Возможно, приложение уже запущено: http://localhost:8765')
-        run('-m', 'alembic', 'upgrade', 'head')
+        run('-m', 'spr.cli', 'local-init')
         print('http://localhost:8765 — доверенный локальный Python, без песочницы ОС', flush=True)
         try:
             run('-m', 'spr.cli', 'serve', '--host', args.host)

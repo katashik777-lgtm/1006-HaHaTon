@@ -17,7 +17,7 @@ for mode,path in [('before',base),('after',ROOT)]*3:
  r=subprocess.run([sys.executable,str(driver),str(path),str(jobfile),str(target)],env=env,capture_output=True,text=True,encoding='utf-8');print(mode,r.returncode,r.stdout,r.stderr[-1000:],flush=True)
  if r.returncode:raise RuntimeError(mode)
  previous=report['runs'].get(mode,{}).get('repetitions',[])
- report['runs'][mode]={'summary':json.loads(r.stdout),'timings':json.loads((target/'timings.json').read_text()),'artifacts':str(target)}
+ report['runs'][mode]={'summary':json.loads(r.stdout),'timings':json.loads((target/'timings.json').read_text()),'artifacts':target.relative_to(ROOT).as_posix()}
  report['runs'][mode]['repetitions']=previous+[report['runs'][mode]['timings']]
 import statistics
 for run in report['runs'].values():run['median_timings']={key:statistics.median(r[key] for r in run['repetitions']) for key in run['timings']}

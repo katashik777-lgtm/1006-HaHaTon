@@ -3,6 +3,7 @@ from pathlib import Path
 from sqlalchemy import select, update
 from .db import Session,Run,File,uid
 from .config import DATA
+from .paths import storage_path,storage_ref,portable_snapshot
 from .pipeline import process,verify_manifest
 
 class Cancelled(Exception):pass
@@ -33,10 +34,11 @@ def work(run_id,owner):
    r.stage=stage;r.progress=value;r.updated=time.time();r.log=logs
  try:
   with Session() as s:
-   r=s.get(Run,run_id);snap=r.snapshot
+   r=s.get(Run,run_id);snap=portable_snapshot(r.snapshot,r.project,r.dataset)
    if r.attempts>3:raise ValueError('Исчерпаны 3 попытки восстановления')
-   final=DATA/'artifacts'/r.project/r.dataset/r.id
-   files=snap['files']
+   final=storage_path(DATA,'artifacts',r.project,r.dataset,r.id)
+   ref=storage_ref('artifacts',r.project,r.dataset,r.id)
+   files=[{**item,'path':storage_path(DATA,'sources',r.project,r.dataset,item['id'])} for item in snap['files']]
   if final.exists():summary=verify_manifest(final)['summary']
   else:
    temp=final.with_name(final.name+'.tmp-'+owner[:8]);temp.mkdir(parents=True,exist_ok=True)
@@ -60,7 +62,13 @@ def work(run_id,owner):
   with Session.begin() as s:
    r=s.get(Run,run_id)
    if r.owner!=owner or r.status=='cancelled':return
-   r.status='completed';r.stage='Готово';r.progress=100;r.artifact=str(final);r.summary=summary;r.updated=time.time()
+   r.artifact=ref.as_posix();r.summary=summary;r.updated=time.time()
+   if summary['files'] and not summary['quality']['parsed']:
+    r.status='failed';r.stage='Все файлы отклонены'
+    checksums=summary['quality'].get('checksum_error',0)
+    r.error=f'Не удалось обработать ни одного файла. Отклонено файлов: {summary["files"]}.'
+    if checksums:r.error+=f' Контрольная сумма не совпала у {checksums} файлов.'
+   else:r.status='completed';r.stage='Готово';r.progress=100
  except Cancelled:pass
  except Exception as e:
   with Session.begin() as s:

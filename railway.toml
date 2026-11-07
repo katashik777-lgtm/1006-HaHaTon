@@ -1,0 +1,7 @@
+[build]
+builder = "DOCKERFILE"
+
+[deploy]
+healthcheckPath = "/api/ready"
+healthcheckTimeout = 180
+restartPolicyType = "ON_FAILURE"

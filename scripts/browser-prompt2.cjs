@@ -96,7 +96,7 @@ async function json(response) {
     await page.locator('tbody tr').filter({hasText:scorePath}).first().waitFor();
   };
   try {
-    await page.goto(base);
+    await page.goto(new URL('/?mode=advanced',base).href);
     await page.locator('input[name=name]').fill(credentials.name);
     await page.locator('input[name=password]').fill(credentials.password);
     await button('Войти').click();

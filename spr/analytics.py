@@ -1,4 +1,4 @@
-import json
+import json, os
 from pathlib import Path
 import duckdb
 
@@ -20,8 +20,8 @@ def where(filters, allowed):
   else:clauses.append('"'+c+'" = ?');params.append(v)
  return (' AND '.join(clauses) or 'true'),params
 class Mart:
- def __init__(self,path):
-  self.path=Path(path);self._cache={};self.con=duckdb.connect(':memory:',config={'threads':2,'memory_limit':'512MB','enable_external_access':True})
+ def __init__(self,path,*,threads=2):
+  self.path=Path(path);self._cache={};self.con=duckdb.connect(':memory:',config={'threads':threads,'memory_limit':os.environ.get('SPR_DUCKDB_MEMORY','512MB'),'enable_external_access':True})
   for name in ('comparison','segments','normalized','quality','facts','membership','products','unpaired_segments','unpaired_products'):
    p=self.path/(name+'.parquet')
    if p.exists():self.con.execute('CREATE VIEW '+name+" AS SELECT * FROM read_parquet('"+str(p).replace("'","''")+"')")

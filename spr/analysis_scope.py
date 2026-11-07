@@ -16,7 +16,14 @@ DIRECTIONS = {'le': lambda d: d <= 0, 'lt': lambda d: d < 0,
               'ge': lambda d: d >= 0, 'gt': lambda d: d > 0}
 REASONS = {'STOP_FACTOR': 'Стоп-фактор', 'SCORE_CUTOFF': 'Порог Score не пройден',
            'INCOMPLETE': 'Недостаточно данных', 'PENALTY_UNSET': 'Штраф не задан',
-           'SCORE_PASS': 'Порог Score пройден'}
+           'SCORE_PASS': 'Порог Score пройден', 'DIRECTION_UNSET': 'Направление порога не задано'}
+
+
+def model_direction(config, model, override=''):
+    direction = override or config.get('models', {}).get(model, {}).get('direction', config.get('direction'))
+    if direction is not None and direction not in DIRECTIONS:
+        raise ValueError('Недопустимое правило порога в профиле')
+    return direction
 
 
 class AnalysisOptions(BaseModel):
@@ -108,10 +115,7 @@ class AnalysisScope:
 
     def evaluate(self, row):
         opt = self.options
-        model_config = self.config.get('models', {}).get(row['MODEL'], {})
-        direction = opt.direction or model_config.get('direction', self.config.get('direction', 'le'))
-        if direction not in DIRECTIONS:
-            raise ValueError('Недопустимое правило порога в профиле')
+        direction = model_direction(self.config, row['MODEL'], opt.direction)
         score, cutoff = number(row['SCORE']), number(row['CUTOFF'])
         effective, penalty = score, None
         factors = names(row)
@@ -122,6 +126,10 @@ class AnalysisScope:
         decision, reason = 'UNKNOWN', 'INCOMPLETE'
         if opt.mode == 'hard' and blocked:
             decision, reason = 'REJECT', 'STOP_FACTOR'
+        elif direction is None:
+            reason = 'DIRECTION_UNSET'
+            if opt.mode == 'penalty':
+                effective = None
         elif opt.mode == 'penalty' and self.penalty is None:
             effective, reason = None, 'PENALTY_UNSET'
         elif opt.mode == 'penalty' and unknown_stop:
@@ -148,7 +156,7 @@ class AnalysisScope:
                 'ACTIVE_DECISION': selected_decision, 'ACTIVE_SCORE': value,
                 'EFFECTIVE_SCORE': float(effective) if effective is not None else None,
                 'PENALTY': float(penalty) if penalty is not None else None, 'DIRECTION': direction,
-                'DELTA': delta, 'PASSES_SCORE': delta is not None and DIRECTIONS[direction](delta)}
+                'DELTA': delta, 'PASSES_SCORE': direction is not None and delta is not None and DIRECTIONS[direction](delta)}
 
     def side_matches(self, row):
         if row is None:

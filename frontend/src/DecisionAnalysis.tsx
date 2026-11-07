@@ -8,8 +8,8 @@ const statusLabels: Record<string, string> = {
 };
 export const decisionLabel = (value: string) => statusLabels[value] || value || '—';
 const reasons: Record<string, string> = {
-  STOP_FACTOR: 'Стоп-фактор', SCORE_CUTOFF: 'Порог Score не пройден',
-  SCORE_PASS: 'Порог Score пройден', INCOMPLETE: 'Недостаточно данных',
+  STOP_FACTOR: 'Стоп-фактор', SCORE_CUTOFF: 'Порог балл не пройден',
+  SCORE_PASS: 'Порог балл пройден', INCOMPLETE: 'Недостаточно данных', DIRECTION_UNSET: 'Направление порога не задано',
   PENALTY_UNSET: 'Штраф не задан',
 };
 const directions: Record<string, string> = {le: '≤', lt: '<', ge: '≥', gt: '>'};
@@ -47,8 +47,8 @@ export function AnalysisControls({applied, apply, meta, total}: {
   const decisions = (meta?.decisions || Object.keys(statusLabels)).map((id: string) => [id, decisionLabel(id)]);
   const active = [
     applied.product && 'Продукт ' + applied.product,
-    applied.minimum && 'Score от ' + applied.minimum,
-    applied.maximum && 'Score до ' + applied.maximum,
+    applied.minimum && 'Балл от ' + applied.minimum,
+    applied.maximum && 'Балл до ' + applied.maximum,
     applied.near && 'Близко к порогу',
     applied.stop && 'Стоп-фактор · ' + ({yes:'сработал', no:'не сработал', unknown:'неизвестно'}[applied.stop]),
     applied.factors.length > 0 && applied.factors.join(', ') + (applied.factor_match === 'all' ? ' · все' : ' · любой'),
@@ -65,16 +65,16 @@ export function AnalysisControls({applied, apply, meta, total}: {
     <form className="form-pad" onSubmit={e => {e.preventDefault(); if (valid) apply(draft);}}>
       <div className="analysis-filters">
         {select('basis', 'Источник решений', [['historical', 'Исторические решения'], ['scenario', 'Расчёт выбранного сценария']])}
-        {select('mode', 'Моделирование стоп-фактора', [['hard', 'Стоп-фактор сразу даёт отказ'], ['penalty', 'Стоп-фактор ухудшает Score']])}
-        {select('direction', 'Правило одобрения', [['', 'Из профиля'], ...Object.entries(directions).map(([id, op]): [string,string] => [id, 'Score ' + op + ' порог'])])}
+        {select('mode', 'Моделирование стоп-фактора', [['hard', 'Стоп-фактор сразу даёт отказ'], ['penalty', 'Стоп-фактор ухудшает балл']])}
+        {select('direction', 'Правило одобрения', [['', 'Из профиля'], ...Object.entries(directions).map(([id, op]): [string,string] => [id, 'Балл ' + op + ' порог'])])}
         {draft.mode === 'penalty' && decimal('penalty', 'Штраф за каждый стоп-фактор', meta?.profile_penalty == null ? 'Задайте штраф' : String(meta.profile_penalty))}
       </div>
-      {draft.mode === 'penalty' && <p className="muted">Штрафы складываются в единицах Score. При правиле ≤ или &lt; штраф увеличивает балл, при ≥ или &gt; уменьшает.</p>}
+      {draft.mode === 'penalty' && <p className="muted">Штрафы складываются в баллах. При правиле ≤ или &lt; штраф увеличивает балл, при ≥ или &gt; уменьшает.</p>}
       {applied.mode === 'penalty' && meta?.penalty == null && <p role="status">Штраф не задан. Укажите его здесь или в профиле для расчёта сценария.</p>}
       <div className="analysis-filters">
         {select('side', 'Сторона фильтров', [['either','Хотя бы одна сторона'], ['both','Обе стороны'], ['BEFORE','До'], ['AFTER','После']])}
         {select('product', 'Продукт', [['','Все'], ...(meta?.products || []).map((id: string) => [id,id])])}
-        {decimal('minimum', 'Score от')}{decimal('maximum', 'Score до')}
+        {decimal('minimum', 'Балл от')}{decimal('maximum', 'Балл до')}
         {select('stop', 'Стоп-фактор', [['','Любое состояние'],['yes','Сработал'],['no','Не сработал'],['unknown','Неизвестно']])}
         <label>Причина отказа<input value={draft.reason} onChange={e => field('reason', e.target.value)}/></label>
         {select('before', 'Решение до', [['','Все'], ...decisions])}
@@ -93,7 +93,7 @@ export function AnalysisControls({applied, apply, meta, total}: {
       <label className="inline"><input type="checkbox" checked={draft.near} onChange={e => field('near', e.target.checked)}/>Близко к порогу</label>
       {draft.near && <div className="analysis-filters">{decimal('distance','Ширина зоны порога',String(meta?.distance ?? '0.1'))}
         {select('position','Положение относительно порога',[['any','Любое'],['below','Ниже'],['equal','Ровно на пороге'],['above','Выше']])}</div>}
-      {!valid && <p role="alert">Нижняя граница Score не должна превышать верхнюю.</p>}
+      {!valid && <p role="alert">Нижняя граница балл не должна превышать верхнюю.</p>}
       <div className="actions"><button className="primary" disabled={!valid}>Применить выборку</button>
         <button type="button" onClick={() => apply({...defaultAnalysis, basis: applied.basis, mode: applied.mode, direction: applied.direction, penalty: applied.penalty})}>Сбросить фильтры</button>
       </div>
@@ -148,7 +148,7 @@ export function DecisionAnalysis({data, page, setPage, near, passesOnly, setPass
   const cells = (r: any) => [r?.RAW_SCORE, r?.CUTOFF, signed(r?.DELTA),
     r?.FACTORS?.join(', ') || (r?.STOP ? 'Сработал' : r?.STOP_UNKNOWN ? 'Неизвестно' : '—'),
     decisionLabel(r?.HISTORICAL), decisionLabel(r?.EXPECTED), r?.EFFECTIVE_SCORE, r?.PENALTY, r ? reasons[r.REASON] : '—'];
-  const headings = ['Исходный Score', 'Порог', 'Score − порог', 'Стоп-факторы', 'Историческое решение', 'Расчётное решение', 'Score сценария', 'Штраф', 'Основание сценария'];
+  const headings = ['Исходный балл', 'Порог', 'Балл − порог', 'Стоп-факторы', 'Историческое решение', 'Расчётное решение', 'балл сценария', 'Штраф', 'Основание сценария'];
   const table = (items: any[]) => <div className="table-wrap"><table><thead>
     <tr><th rowSpan={2}>Заявка / продукт</th>{sides.map(s => <th colSpan={headings.length} key={s}>{sideLabel[s]}</th>)}</tr>
     <tr>{sides.flatMap(s => headings.map(h => <th key={s+h}>{h}</th>))}</tr></thead>
@@ -168,7 +168,7 @@ export function DecisionAnalysis({data, page, setPage, near, passesOnly, setPass
       </table>
     </details>
     {near && <label className="inline"><input type="checkbox" checked={passesOnly} onChange={e=>setPassesOnly(e.target.checked)}/>
-      Только проходящие по Score в зоне порога · {data.near_pass_total} пар
+      Только проходящие по балл в зоне порога · {data.near_pass_total} пар
     </label>}
     {table(data.items)}
     {!data.items.length && <p>Нет продуктовых строк по выбранным фильтрам.</p>}
@@ -183,10 +183,10 @@ export function DecisionAnalysis({data, page, setPage, near, passesOnly, setPass
 export function ApplicationScorecards({pairs, fields}: any) {
   if (!pairs?.length) return null;
   const metrics: [string, (r: any) => any][] = [
-    ['Модель', r => r.MODEL], ['Исходный Score', r => r.RAW_SCORE],
-    ['Штраф', r => r.PENALTY], ['Итоговый Score сценария', r => r.EFFECTIVE_SCORE],
-    ['Порог', r => r.CUTOFF], ['Score − порог', r => signed(r.DELTA)],
-    ['Правило одобрения', r => 'Score ' + directions[r.DIRECTION] + ' порог'],
+    ['Модель', r => r.MODEL], ['Исходный балл', r => r.RAW_SCORE],
+    ['Штраф', r => r.PENALTY], ['Итоговый балл сценария', r => r.EFFECTIVE_SCORE],
+    ['Порог', r => r.CUTOFF], ['Балл − порог', r => signed(r.DELTA)],
+    ['Правило одобрения', r => r.DIRECTION ? 'Балл ' + directions[r.DIRECTION] + ' порог' : 'Правило не задано'],
     ['Стоп-факторы', r => r.FACTORS.join(', ') || (r.STOP ? 'Сработал' : r.STOP_UNKNOWN ? 'Неизвестно' : 'Нет')],
     ['Историческое решение', r => decisionLabel(r.HISTORICAL)], ['Расчётное решение', r => decisionLabel(r.EXPECTED)],
     ['Основание сценария', r => reasons[r.REASON]],

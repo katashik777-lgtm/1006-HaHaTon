@@ -29,11 +29,16 @@ from spr.analytics import Mart
 p=Path(sys.argv[3]); job=json.loads(Path(sys.argv[2]).read_text())
 summary=process(job['files'],job['profile'],p,checks=job['checks'])
 published=json.loads((p/'checks.json').read_bytes())
-assert all(r['RESULT']!='ERROR' for r in published), published[-5:]
+errors_path=p/'check_errors.json'
+errors=json.loads(errors_path.read_bytes()) if errors_path.exists() else [r for r in published if r.get('RESULT')=='ERROR']
+assert not errors, errors
 duration=lambda start:time.perf_counter()-start
 series=[]
 for _ in range(7):
- t=time.perf_counter();json.loads((p/'checks.json').read_bytes());report=duration(t)
+ t=time.perf_counter()
+ for file in ('checks.json','buckets.json','check_errors.json'):
+  if (p/file).exists():json.loads((p/file).read_bytes())
+ report=duration(t)
  t=time.perf_counter()
  with Mart(p) as m:
   reader=duration(t)

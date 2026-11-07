@@ -83,10 +83,33 @@ def test_prefix_union_and_cache_lifetime(artifact):
  m.close();assert not m._cache
 
 def test_source_checksum(tmp_path):
+ import hashlib
  p=tmp_path/'a.json';p.write_text('{"id":"a"}')
  summary=process([{'name':'a.json','path':str(p),'source':'BEFORE','format':'json','sha256':'incorrect'}],{'app_id':'id'},tmp_path/'out')
  assert summary['valid_pairs']==0
- assert summary['quality']['schema_error']==1
+ assert summary['quality']['checksum_error']==1
+ lf=b'{\n"id":"a"\n}\n';p.write_bytes(lf.replace(b'\n',b'\r\n'))
+ files=[{'name':'a.json','path':str(p),'source':side,'format':'json','sha256':hashlib.sha256(lf).hexdigest()}
+        for side in ('BEFORE','AFTER')]
+ summary=process(files,{'app_id':'id'},tmp_path/'converted')
+ assert summary['valid_pairs']==1 and summary['line_endings_verified']==2
+ assert summary['quality']['checksum_error']==0
+
+
+def test_segment_attributes_follow_identified_product():
+ from spr.pipeline import segment
+ from spr.normalize import normalize
+ rejected={'product_id':'1','decision':'REJECT','scoring':{'pd':{'modelName':'other'}},'rejectReason':'X'}
+ approved={'product_id':'9','decision':'APPROVE','scoring':{'pd':{'modelName':'target'}},'cutOff':{'name':'P9'}}
+ before={'decisionResult':{'decision':'APPROVE','product_trials':[rejected,approved]}}
+ after={'decisionResult':{'decision':'REJECT','product_trials':[rejected,{**approved,'decision':'REJECT'}]}}
+ row=segment('a',before,after,{})
+ assert (row['DECISION_PRODUCT_BEFORE'],row['PD_MODEL_BEFORE'],row['CUTOFF_BEFORE'])==('9','target','P9')
+ assert row['DECISION_PRODUCT_AFTER'] is None and row['REJECT_REASON_AFTER'] is None
+ after['decisionResult']['driver']='1'
+ row=segment('a',before,after,{'decision_product_path':'decisionResult.driver'})
+ assert row['DECISION_PRODUCT_AFTER']=='1' and row['REJECT_REASON_AFTER']=='X'
+ assert normalize({'characteristics':{'score_okb':10}},'a','BEFORE',{})[0]['CLASS']=='score_okb'
 
 
 def test_drill_comparison_value_filters(artifact):

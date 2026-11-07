@@ -26,3 +26,48 @@ button,input,select{min-height:44px}input[type=checkbox]{min-height:20px}button:
 .factor-options { max-height: 220px; overflow: auto; padding: 8px 0; }
 .factor-options label { margin-bottom: 6px; }
 .table-wrap caption { text-align: left; padding: 12px 16px; font-weight: 600; }
+
+.auth-demo-option{border-top:1px solid var(--line);padding-top:14px;margin-top:6px}
+.auth-demo-option p{color:#52705e;margin:0 0 8px}
+.demo-access-notice{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;margin:0 0 16px;border:1px solid #d5e4d2;border-radius:12px;background:#edf5ea;color:#294c3e}
+.demo-access-notice p{margin:0;display:grid;gap:3px}
+.demo-access-notice button{flex-shrink:0;color:#295c48;background:#fff}
+.overview-detail-panel{min-width:0}
+.overview-change-list{display:grid;gap:9px;padding:0 18px 16px}
+.overview-change-list>p{margin:4px 0;color:#54705f}
+.overview-change-group,.overview-product{border:1px solid var(--line);border-radius:11px;background:#f7faf6;padding:9px 12px;min-width:0}
+.overview-change-header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center}
+.overview-change-header>b{overflow-wrap:anywhere;line-height:1.35}
+.overview-change-header .overview-count{color:#285c47;background:#e8f2e5;white-space:nowrap;min-height:38px}
+.overview-field-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,175px),1fr));gap:1px 9px;padding:8px 0 0;margin:0;list-style:none}
+button.field-change-link{display:flex;align-items:center;justify-content:space-between;gap:7px;text-align:left;min-height:36px;padding:3px 0;white-space:normal;overflow-wrap:anywhere;line-height:1.35}
+.field-change-link svg,.overview-factor svg{flex-shrink:0}
+.overview-product>summary{font-weight:720;cursor:pointer;line-height:1.35}
+.overview-product>p{margin:3px 0 10px}
+button.overview-factor{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:9px;text-align:left;width:100%;margin:5px 0;white-space:normal;overflow-wrap:anywhere}
+.overview-factor b{white-space:nowrap}
+.app .mobile-logout{display:none}
+
+@media(max-width:730px){
+  .app{display:block}
+  .app>aside{position:sticky;inset:0 auto auto 0;width:100%;min-width:0;height:auto;max-height:none;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;border:0;border-bottom:1px solid var(--line);background:#f6faf5}
+  .app>aside .brand{padding:8px 10px;gap:7px;font-size:17px}
+  .app>aside .brand>span{display:inline}
+  .app>aside .brand .logo{width:30px;height:30px}
+  .app>aside .brand .logo svg{width:17px;height:17px}
+  .app>aside .workspace{display:block;margin:4px 9px 4px 0;padding:0;border:0}
+  .app>aside .workspace .eyebrow,.app>aside>.nav-caption,.app>aside .aside-bottom{display:none}
+  .app>aside .workspace select{display:block;width:100%;max-width:100%;min-height:36px}
+  .app>aside nav{grid-column:1/-1;display:flex;flex-direction:row;align-items:center;min-width:0;gap:5px;overflow:auto;scrollbar-width:thin;padding:0 9px 5px}
+  .app>aside .nav-group{display:contents}
+  .app>aside nav button{flex:0 0 auto;display:flex;flex-direction:row;gap:5px;padding:5px 9px;font-size:12px;min-height:36px;width:auto;white-space:nowrap}
+  .app>aside nav button svg{width:15px;height:15px}
+  .app>main{margin:0;width:100%;min-width:0}
+  .app>main>header{position:static;height:auto;min-height:49px;padding:4px 10px}
+  .app>main>header .breadcrumb{display:none}
+  .app .mobile-logout{display:inline-flex;min-height:36px;padding:5px 9px}
+  .app .content{padding:12px}
+  .overview-change-list{padding:0 11px 11px}
+  .overview-change-header{grid-template-columns:minmax(0,1fr) auto}
+  .demo-access-notice{flex-wrap:wrap;padding:10px 12px}
+}

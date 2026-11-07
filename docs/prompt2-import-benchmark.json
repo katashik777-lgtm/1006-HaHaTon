@@ -36,7 +36,7 @@
         "checks": 5.2125642000028165,
         "total": 11.634303500002716
       },
-      "artifacts": "C:\\Users\\vmvbi\\1006-HaHaTon\\tmp\\prompt2-full-before-1794071250203483600",
+      "artifacts": "tmp/prompt2-full-before-1794071250203483600",
       "repetitions": [
         {
           "read_parse_normalize": 5.632485299996915,
@@ -116,7 +116,7 @@
         "checks": 3.2630048999999417,
         "total": 11.525072400007048
       },
-      "artifacts": "C:\\Users\\vmvbi\\1006-HaHaTon\\tmp\\prompt2-full-after-1794071262922221100",
+      "artifacts": "tmp/prompt2-full-after-1794071262922221100",
       "repetitions": [
         {
           "read": 0.6403923002071679,

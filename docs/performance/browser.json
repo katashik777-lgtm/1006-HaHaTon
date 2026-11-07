@@ -1,12 +1,20 @@
 {
-  "url": "http://127.0.0.1:8765/?run=45b00afb6d0343298e03b70c63558649&tab=pivot",
+  "date": "2026-11-08",
+  "environment": "macOS 15.8.1, Apple M4, Chrome headless, Playwright, локальная чистая установка",
+  "runSeconds": 7.2,
+  "validPairs": 2002,
+  "changedApps": 502,
   "passed": [
     "login",
-    "run through UI",
+    "full run through UI",
+    "reload during processing",
+    "stage code",
     "overview drill",
     "native source",
     "pivot drill",
-    "refresh direct URL"
+    "pivot layout restored after reload",
+    "checks HTML download",
+    "check HTML link to applications"
   ],
   "pageErrors": []
 }

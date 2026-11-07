@@ -1,0 +1,29 @@
+
+# App data, logs, temp
+var/
+tmp/
+*.log
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# OS/IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Node / frontend
+frontend/node_modules/
+node_modules/
+npm-debug.log*
+
+# Temp
+tmp/
+
+# Private local configuration
+/.local/

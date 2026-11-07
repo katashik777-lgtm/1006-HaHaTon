@@ -52,5 +52,5 @@ def bucket_report(mart):
                 REPORT_VERSION=2, LABEL='BUCKET_TRANSITION' if transition else 'BUCKET_DISTRIBUTION',
                 PATH=row['PATH'], SOURCE='AFTER' if transition else row['SOURCE'], ARGUMENT=row['PATH']+' · '+argument,
                 CNT=row['CNT'], TOTAL=int(row['TOTAL']), METRIC=row['CNT']/row['TOTAL'] if row['TOTAL'] else 0,
-                APP_IDS=row['APP_IDS'], RESULT='INFO', CONFIDENCE='HIGH', **fields))
+                APP_IDS=row['APP_IDS'], UNIT='attribute_rows', **fields))
     return sorted(result, key=lambda row: (row['LABEL'], row['ARGUMENT'], row['SOURCE']))

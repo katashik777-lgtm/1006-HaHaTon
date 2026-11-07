@@ -34,7 +34,8 @@ def test_formats_end_to_end(tmp_path):
   target=folder/'out';summary=process(files,{**profile,'delimiter':delimiter},target)
   assert summary['valid_pairs']==4
   outputs.append({name:pl.read_parquet(target/(name+'.parquet')).sort(['APP_ID']+(['SOURCE','PATH','KEY_JSON'] if name=='normalized' else ['PATH','KEY_JSON'] if name=='comparison' else ['SOURCE','PRODUCT'])).to_dicts() for name in ('normalized','comparison','products')})
-  assert json.loads((target/'checks.json').read_bytes())
+  assert json.loads((target/'checks.json').read_bytes())==[]
+  assert json.loads((target/'buckets.json').read_bytes())
  assert all(result==outputs[0] for result in outputs)
 
 def test_quality_broken_and_clean(tmp_path):

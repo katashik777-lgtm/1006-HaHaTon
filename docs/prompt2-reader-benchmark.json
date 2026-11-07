@@ -1,6 +1,6 @@
 {
   "rows": 289533,
-  "input": "tmp\\benchmark-sequential-warm\\artifacts",
+  "input": "tmp/benchmark-sequential-warm/artifacts",
   "input_bytes": 803357,
   "repeats": 7,
   "condition": "same Parquet, warm OS cache, 2 DuckDB threads; publication and full import not measured",

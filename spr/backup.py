@@ -3,6 +3,7 @@ import sqlite3,shutil,json,hashlib
 from pathlib import Path
 from .config import DATA,DATABASE
 from .pipeline import verify_manifest
+from .paths import storage_ref,portable_snapshot,portable_origin
 from sqlalchemy.engine import make_url
 
 def backup(destination):
@@ -35,11 +36,13 @@ def restore(source):
   elif p.exists():shutil.copy2(p,DATA/name)
  # Rewrite only managed storage references after moving to a new root.
  with sqlite3.connect(DATA/'metadata.sqlite') as con:
-  for ident,path,project,dataset in con.execute('SELECT id,path,project,dataset FROM files').fetchall():con.execute('UPDATE files SET path=? WHERE id=?',(str(DATA/'sources'/project/dataset/ident),ident))
+  for ident,project,dataset in con.execute('SELECT id,project,dataset FROM files').fetchall():
+   con.execute('UPDATE files SET path=? WHERE id=?',(storage_ref('sources',project,dataset,ident).as_posix(),ident))
   for ident,project,dataset,snapshot,status in con.execute('SELECT id,project,dataset,snapshot,status FROM runs').fetchall():
-   snap=json.loads(snapshot)
-   for f in snap['files']:f['path']=str(DATA/'sources'/project/dataset/f['id'])
+   snap=portable_snapshot(json.loads(snapshot),project,dataset)
    artifact=DATA/'artifacts'/project/dataset/ident
-   con.execute('UPDATE runs SET artifact=?,snapshot=? WHERE id=?',(str(artifact) if artifact.exists() else None,json.dumps(snap),ident))
+   con.execute('UPDATE runs SET artifact=?,snapshot=? WHERE id=?',(storage_ref('artifacts',project,dataset,ident).as_posix() if artifact.exists() else None,json.dumps(snap),ident))
+  for ident,body in con.execute("SELECT id,body FROM records WHERE kind='dataset'").fetchall():
+   con.execute('UPDATE records SET body=? WHERE id=?',(json.dumps(portable_origin(json.loads(body))),ident))
  for manifest in (DATA/'artifacts').rglob('manifest.json'):verify_manifest(manifest.parent)
  print('Восстановление и контрольные суммы проверены.')

@@ -4,7 +4,8 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import duckdb
 from spr.analytics import Mart
-source=Path(sys.argv[1] if len(sys.argv)>1 else 'tmp/benchmark-sequential-warm/artifacts')
+from spr.config import ROOT
+source=(ROOT / (sys.argv[1] if len(sys.argv)>1 else 'tmp/benchmark-sequential-warm/artifacts')).resolve()
 target=Path('tmp/prompt2-reader-benchmark');target.mkdir(exist_ok=True)
 import shutil
 shutil.copyfile(source/'comparison.parquet',target/'comparison.parquet')
@@ -33,6 +34,6 @@ for mode in ('before_rebuild','after_persisted'):
   plan=c.execute('EXPLAIN ANALYZE SELECT count(*) FROM comparison WHERE APP_ID=?',[app]).fetchall()
   c.close()
  results[mode]={'open_median_seconds':statistics.median(opens),'first_query_median_seconds':statistics.median(first),'warm_query_median_seconds':statistics.median(repeat)}
-report={'rows':count,'input':str(source),'input_bytes':(source/'comparison.parquet').stat().st_size,'repeats':7,'condition':'same Parquet, warm OS cache, 2 DuckDB threads; publication and full import not measured','index_build_seconds':build,'results':results,'plan':str(plan)}
+report={'rows':count,'input':source.relative_to(ROOT).as_posix() if source.is_relative_to(ROOT) else source.name,'input_bytes':(source/'comparison.parquet').stat().st_size,'repeats':7,'condition':'same Parquet, warm OS cache, 2 DuckDB threads; publication and full import not measured','index_build_seconds':build,'results':results,'plan':str(plan)}
 Path('docs/prompt2-reader-benchmark.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
 print(json.dumps({k:v for k,v in report.items() if k!='plan'},indent=2))

@@ -1,0 +1,13 @@
+.git
+.venv
+.pytest_cache
+.railway
+.env
+.env.*
+**/__pycache__
+**/*.pyc
+**/node_modules
+**/.DS_Store
+var
+tmp
+.local

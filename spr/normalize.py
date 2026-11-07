@@ -123,9 +123,9 @@ def normalize(doc,app_id,source,profile):
   key_json=orjson.dumps(keys).decode()
   # Compatibility display is escaped; KEY_JSON is authoritative for matching.
   array_key='|'.join(quote(scalar(x)[0],safe='@_- .') for k in keys for x in k)
-  prefix=parts[0] if len(parts)>1 else '';cls=parts[1] if len(parts)>2 else '';suffix='.'.join(parts[2:-1]);leaf=parts[-1]
+  prefix=parts[0] if len(parts)>1 else '';cls=parts[1] if len(parts)>1 else '';suffix='.'.join(parts[2:-1]);leaf=parts[-1]
   if profile.get('teaching'):
-   cls=parts[1];suffix={'scoreCardResult':'scoreCard','limitResult':'Limit','rejectReasons':'reason'}.get(cls,'')
+   suffix={'scoreCardResult':'scoreCard','limitResult':'Limit','rejectReasons':'reason'}.get(cls,'')
    if cls=='rejectReasons':leaf=profile.get('scalar_key','')
   ident=(path,key_json)
   if ident in seen:raise ValueError('Attribute collision '+path)

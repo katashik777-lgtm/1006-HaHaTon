@@ -1,0 +1,13 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+ENV PYTHONUTF8=1 PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
+    POLARS_MAX_THREADS=1 OMP_NUM_THREADS=1 MALLOC_ARENA_MAX=1 MALLOC_TRIM_THRESHOLD_=65536 \
+    SPR_DUCKDB_MEMORY=160MB SPR_COMPARE_BATCH_SIZE=200
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+EXPOSE 8765
+CMD ["python", "-m", "deploy.railway_start"]

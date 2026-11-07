@@ -1,26 +1,78 @@
 {
+  "dataset": "RUN-20260827-0001",
   "summary": {
     "discovered": 2002,
     "valid_before": 2002,
     "valid_after": 2002,
     "valid_pairs": 2002,
     "excluded": 0,
-    "changed_apps": 502,
     "decision_changed": 385,
-    "attributes": 289533,
-    "changes": 14412,
     "normalized_rows": 572221,
     "files": 4004,
+    "attributes": 289533,
+    "changes": 14412,
+    "changed_apps": 502,
+    "line_endings_verified": 0,
     "quality": {
+      "parsed": 4004,
       "missing": 0,
       "parse_error": 0,
       "schema_error": 0,
       "id_conflict": 0,
-      "duplicate": 0
+      "duplicate": 0,
+      "checksum_error": 0
     }
+  },
+  "reference": {
+    "changed_apps": 502,
+    "false_positive": 0,
+    "false_negative": 0
+  },
+  "reference_ids_match": true,
+  "change_types": {
+    "ATTRIBUTE_NEW": 3835,
+    "SAME": 275121,
+    "VALUE_CHANGED": 7567,
+    "ATTRIBUTE_LOST": 3010
   },
   "checks_selected": 5,
   "check_rows": 32,
+  "check_statuses": {
+    "PASS": 2,
+    "FAIL": 30
+  },
+  "check_errors": 0,
+  "pivot_groups_verified": 20,
+  "timings_seconds": {
+    "read": 0.37551761232316494,
+    "parse": 0.04664536518976092,
+    "normalize": 1.9013512590900064,
+    "read_parse_normalize": 2.740217042155564,
+    "union": 0.0033211251720786095,
+    "segments": 0.056904542027041316,
+    "parquet": 0.1637554168701172,
+    "comparison": 0.1355762081220746,
+    "aggregations": 0.07602358306758106,
+    "indexes": 0.42359216697514057,
+    "checks": 1.008837959030643,
+    "total": 4.635488792089745
+  },
+  "environment": {
+    "platform": "macOS-15.8.1-arm64-arm-64bit-Mach-O",
+    "python": "3.14.8"
+  },
+  "reader_timings": {
+    "samples": 20,
+    "pivot_open_and_query_ms": {
+      "median": 17.75,
+      "p95": 18.65
+    },
+    "drill_query_ms": {
+      "median": 6.88,
+      "p95": 8.27
+    }
+  },
+  "artifacts": "tmp/acceptance-qy7g1k2w",
   "check_results": [
     {
       "LABEL": "Approval Rate по продукту упал",
@@ -1058,38 +1110,15 @@
     {
       "LABEL": "Сменилась целевая модель решения",
       "SOURCE": "AFTER",
-      "ARGUMENT": "ML_MICRO_LOAN_V1 -> ML_MICRO_LOAN_V3",
-      "CNT": 167,
+      "ARGUMENT": "",
+      "CNT": 0,
       "TOTAL": 2002,
-      "METRIC": 0.0834,
-      "APP_IDS": [
-        "I32554358",
-        "I32554370",
-        "I32554394",
-        "I32554406",
-        "I32554430",
-        "I32554442",
-        "I32554466",
-        "I32554478",
-        "I32554502",
-        "I32554514",
-        "I32554538",
-        "I32554550",
-        "I32554574",
-        "I32554586",
-        "I32554610",
-        "I32554622",
-        "I32554646",
-        "I32554658",
-        "I32554682",
-        "I32554694"
-      ],
-      "RESULT": "FAIL",
+      "METRIC": 0.0,
+      "APP_IDS": [],
+      "RESULT": "PASS",
       "CONFIDENCE": "HIGH",
       "CHECK_ID": "check_target_model_changed",
-      "APP_IDS_LIMITED": true
+      "APP_IDS_LIMITED": false
     }
-  ],
-  "reference_ids_match": true,
-  "artifacts": "C:\\Users\\vmvbi\\1006-HaHaTon\\tmp\\acceptance-1794052694"
+  ]
 }
