@@ -1,11 +1,13 @@
 name: Cross-platform checks
 on: [push, pull_request]
+permissions:
+  contents: read
 jobs:
   python:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-24.04, macos-latest, windows-latest]
         python: ['3.12', '3.14']
     runs-on: ${{ matrix.os }}
     env:
@@ -13,8 +15,8 @@ jobs:
       POLARS_MAX_THREADS: '4'
       OMP_NUM_THREADS: '1'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version: ${{ matrix.python }}
       - run: python -m venv .venv
@@ -25,13 +27,13 @@ jobs:
           "$PY" -m pip check
           "$PY" -m pytest -q
       - name: Compare the complete open dataset with the reference
-        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.14'
+        if: matrix.os == 'ubuntu-24.04' && matrix.python == '3.14'
         run: .venv/bin/python scripts/acceptance.py
   frontend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
         with:
           node-version: '22'
           cache: npm

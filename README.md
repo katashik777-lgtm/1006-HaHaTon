@@ -141,7 +141,7 @@
 Для получения копии через Git выполните:
 
 ```bash
-git clone https://github.com/katashik777-lgtm/1006-HaHaTon.git
+git clone --depth 1 https://github.com/katashik777-lgtm/1006-HaHaTon.git
 cd 1006-HaHaTon
 ```
 
