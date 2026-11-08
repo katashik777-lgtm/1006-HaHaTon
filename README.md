@@ -13,7 +13,7 @@
 - Лубашевский Георгий
 - Баев Дмитрий
 
-[Открыть Скорифай](https://scorify-production.up.railway.app) · [Руководство пользователя](docs/user-guide.md)
+[Открыть Скорифай](https://scorify-production.up.railway.app) · [Руководство пользователя](docs/user-guide.md) · [Скриншоты интерфейса и результатов](docs/screenshots/)
 
 **Пояснительная записка** — [читать на GitHub](docs/team-note.md) · [скачать PDF](docs/team-note.pdf)
 
